@@ -359,6 +359,16 @@ textarea.form-control {
 	padding: 0;
 }
 
+.skills {
+	width:100%;
+	margin: 0 auto;
+	padding-left: 15%;
+	padding-right: 14%;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
 .home-overlay {
     background-color: rgba(44, 62, 80, 0.3);
     background-image: url("../images/pattern.png");
