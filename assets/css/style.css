@@ -235,7 +235,7 @@ textarea.form-control {
 
 .pfblock-gray {
     
-	background: #f5f5f5;
+	background: #181818;
 }
 
 .pfblock-image {
@@ -276,7 +276,7 @@ textarea.form-control {
 }
 
 .pfblock-title{
-    font-weight: 800;
+    font-weight: 800;color:#999999;
 }
 
 .pfblock-subtitle {
