@@ -59,7 +59,8 @@ a,
 .form-control,
 .form-control:hover,
 .form-control:focus,
-.navbar-custom .dropdown-menu {
+
+-custom .dropdown-menu {
 	-webkit-box-shadow: none;
 			box-shadow: none;
 }
@@ -558,6 +559,7 @@ textarea.form-control {
 	font-size: 11px;
 	letter-spacing: 3px;
 	color: #222;
+	font-weight:600;
 }
 
 .navbar-custom .nav li.active,
