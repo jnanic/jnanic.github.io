@@ -348,7 +348,6 @@ textarea.form-control {
 /* ---------------------------------------------- */
 
 #home {
-	display: none;
 	background: url(../images/cover.jpg);
 	background-color: #222;
 	background-attachment: fixed;
@@ -479,6 +478,7 @@ textarea.form-control {
 /* ---------------------------------------------- */
 
 #footer {
+    display: none;
 	background: #222;
 	text-align: center;
 	padding: 40px 0;
@@ -989,4 +989,3 @@ figure.effect-bubba:hover p {
 	}
 
 }
-
