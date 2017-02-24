@@ -348,6 +348,7 @@ textarea.form-control {
 /* ---------------------------------------------- */
 
 #home {
+	display: none;
 	background: url(../images/cover.jpg);
 	background-color: #222;
 	background-attachment: fixed;
