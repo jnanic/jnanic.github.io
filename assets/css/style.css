@@ -166,7 +166,7 @@ h6 {
 }
 
 textarea.form-control {
-	padding: 15px;
+	padding: 0px;
     max-width: 100%;
     min-width: 100%;
 }
