@@ -377,7 +377,8 @@ overflow-x: hidden;
      
 
 	
-	margin: 0 auto;
+	margin-left: 15%;
+	margin-right: 15%;
 	padding-left: inherit;
 	padding-right: inherit;
 	display: flex;
