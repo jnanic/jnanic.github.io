@@ -423,11 +423,12 @@ overflow-x: hidden;
 /* ---------------------------------------------- */
 
 .iconbox {
-	background: #cccccc;;
+	background: #e6e6e6;;
 	border-bottom: 2px solid #d4d4d4;
 	text-align: center;
 	padding: 20px 20px;
 	margin: 0 0 20px;
+  	color:#111111;
   	
     
 }
