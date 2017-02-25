@@ -7,14 +7,7 @@
  * Copyright 2015 Script Eden
  * Licensed under MIT
 */
-html,body
-{
-    width: 100%;
-    
-    margin: 0px;
-    padding: 0px;
-    overflow-x: hidden; 
-}
+
 body {
 	font: 300 14px/1.8 'Raleway', sans-serif;
 	color: #666;
@@ -371,7 +364,7 @@ textarea.form-control {
 .skills {
      
 
-	width:100%;
+	
 	margin: 0 auto;
 	padding-left: 15%;
 	padding-right: 15%;
