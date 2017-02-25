@@ -735,7 +735,7 @@ textarea.form-control {
 /*--------------------------------*/
 
 .grid {
-  	display:none;
+  
 	position: relative;
 	clear: both;
 	margin: 0 auto;
@@ -750,6 +750,7 @@ textarea.form-control {
 }
 
 .grid figure {
+  	display:none;
 	position: relative;
 	float: left;
 	overflow: hidden;
