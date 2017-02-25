@@ -366,8 +366,8 @@ overflow-x: hidden;
 
 	
 	margin: 0 auto;
-	padding-left: 15%;
-	padding-right: 15%;
+	padding-left: inherit;
+	padding-right: inherit;
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
