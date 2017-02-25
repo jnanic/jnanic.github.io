@@ -605,7 +605,7 @@ textarea.form-control {
 
 .scroll-up {
 	position: fixed;
-	display: none;
+	
 	z-index: 999;
 	bottom: 2em;
 	right: 2em;
