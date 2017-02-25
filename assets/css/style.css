@@ -358,7 +358,7 @@ textarea.form-control {
 		 -o-background-size: cover;
 			background-size: cover;
  	  
-
+overflow-x: hidden;
 }
 
 .skills {
