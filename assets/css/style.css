@@ -280,7 +280,8 @@ textarea.form-control {
 }
 
 .pfblock-title{
-    font-weight: 800;color:#cccccc;
+    font-weight: 800;
+  	color:#cccccc;
 }
 
 .pfblock-subtitle {
@@ -427,6 +428,7 @@ overflow-x: hidden;
 	text-align: center;
 	padding: 20px 20px;
 	margin: 0 0 20px;
+  	color:#cccccc;
     
 }
 
