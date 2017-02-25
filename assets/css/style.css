@@ -27,7 +27,13 @@ a:hover {
 	text-decoration: none;
 	color: #999;
 }
-
+.dp {
+    height: 240px;
+    width: 240px;
+    border-radius: 100%;
+    margin-top: -60px;
+    border: 3px solid #fff;
+}
 /* ---------------------------------------------- /*
  * Transition elsements
 /* ---------------------------------------------- */
