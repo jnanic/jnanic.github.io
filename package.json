@@ -1,0 +1,41 @@
+{
+  "name": "yash-sharma-portfolio",
+  "version": "2.0.0",
+  "description": "Personal Portfolio Website - Yash Sharma",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jnanic/jnanic.github.io.git"
+  },
+  "author": "Yash Sharma",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jnanic/jnanic.github.io/issues"
+  },
+  "homepage": "https://yashsharma.dev",
+  "dependencies": {
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "framer-motion": "^11.0.0",
+    "next-themes": "^0.3.0",
+    "react-icons": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.0.0",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.2.0"
+  }
+}

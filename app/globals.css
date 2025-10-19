@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --accent: 184 100% 50%; /* Cyber Blue by default */
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white dark:bg-dark-bg text-gray-900 dark:text-gray-100 transition-colors duration-300;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-cyber-blue-400 via-cyber-blue-500 to-cyber-blue-600 dark:from-cyber-blue-300 dark:via-cyber-blue-400 dark:to-cyber-blue-500;
+  }
+
+  .glass-effect {
+    @apply bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10;
+  }
+
+  .glow-effect {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-dark-bg;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-600;
+}
+
+/* Gradient mesh animation */
+@keyframes mesh-animation {
+  0%, 100% {
+    transform: translate(0%, 0%) scale(1);
+  }
+  33% {
+    transform: translate(30%, -30%) scale(1.1);
+  }
+  66% {
+    transform: translate(-20%, 20%) scale(0.9);
+  }
+}
+
+.gradient-mesh {
+  animation: mesh-animation 20s ease-in-out infinite;
+}
