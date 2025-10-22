@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import Navigation from '@/components/Navigation';
+import CursorGlow from '@/components/CursorGlow';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -49,6 +50,7 @@ export default function RootLayout({
       </head>
       <body className={inter.variable}>
         <ThemeProvider>
+          <CursorGlow />
           <Navigation />
           {children}
         </ThemeProvider>
