@@ -32,7 +32,10 @@ export default function CursorGlow() {
       const listener = (e: MediaQueryListEvent) => setEnabled(!e.matches);
       mq.addEventListener?.('change', listener);
       return () => mq.removeEventListener?.('change', listener);
-    } catch {}
+    } catch (error) {
+      // Log error to help with debugging, but fail gracefully for users
+      console.error("CursorGlow: Error setting up prefers-reduced-motion listener", error);
+    }
 
     const handleMouseMove = (e: MouseEvent) => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
