@@ -17,7 +17,7 @@ A fast, minimalist portfolio website built with Next.js, TypeScript, and Tailwin
 
 ## 🎨 Color Palette
 
-- **Zaffre Blue**: `#3a0ca3` - Primary accent
+- **Zaffre Blue**: `#0ABEFF` - Primary accent
 - **Imperial Red**: `#f7253a` - Secondary accent
 - **Black**: `#000500` - Dark mode background
 - **White**: `#ffffff` - Light mode background
