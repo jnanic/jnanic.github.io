@@ -29,15 +29,18 @@ export default function GlobalParticles() {
   }, []);
 
   useEffect(() => {
-    // Initialize 90 particles across viewport
-    const initialParticles = Array.from({ length: 90 }, (_, i) => ({
-      id: i,
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      vx: (Math.random() - 0.5) * 0.8,
-      vy: (Math.random() - 0.5) * 0.8,
-    }));
-    setParticles(initialParticles);
+    const COUNT = 90;
+    const initParticles = (count: number) =>
+      Array.from({ length: count }, (_, i) => ({
+        id: i,
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        // Wider velocity range for stronger visual differences
+        vx: (Math.random() - 0.5) * 1.6,
+        vy: (Math.random() - 0.5) * 1.6,
+      }));
+
+    setParticles(initParticles(COUNT));
 
     // Track mouse in viewport coordinates
     const handleMouseMove = (e: MouseEvent) => {
@@ -76,11 +79,11 @@ export default function GlobalParticles() {
           newVx += (Math.random() - 0.5) * 0.05; // random movement
           newVy += (Math.random() - 0.5) * 0.05;
 
-          // Speed limit
+          // Speed limit (slightly higher due to larger initial velocities)
           const speed = Math.sqrt(newVx * newVx + newVy * newVy);
-          if (speed > 2) {
-            newVx = (newVx / speed) * 2;
-            newVy = (newVy / speed) * 2;
+          if (speed > 2.5) {
+            newVx = (newVx / speed) * 2.5;
+            newVy = (newVy / speed) * 2.5;
           }
 
           newX += newVx;
@@ -103,14 +106,28 @@ export default function GlobalParticles() {
       );
     }, 32);
 
+    // Re-seed on significant viewport resize for a bigger visual reset
+    let lastW = window.innerWidth;
+    let lastH = window.innerHeight;
+    const onResize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (Math.abs(w - lastW) / Math.max(1, lastW) > 0.12 || Math.abs(h - lastH) / Math.max(1, lastH) > 0.12) {
+        lastW = w; lastH = h;
+        setParticles(initParticles(COUNT));
+      }
+    };
+    window.addEventListener('resize', onResize);
+
     return () => {
       clearInterval(interval);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', onResize);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [mouseX, mouseY]);
 
-  // Calculate connections between nearby particles
+  // Calculate connections
   const connections = particles.flatMap((p1, i) =>
     particles.slice(i + 1).map((p2) => {
       const dx = p2.x - p1.x;
@@ -130,6 +147,7 @@ export default function GlobalParticles() {
       return null;
     })
   ).filter(Boolean);
+  // No section-based crossfade — particles remain constant across sections
 
   if (!mounted) return null;
 
@@ -144,7 +162,7 @@ export default function GlobalParticles() {
         bottom: 0,
         width: '100vw',
         height: '100vh',
-        zIndex: 1,
+        zIndex: 2,
         overflow: 'hidden'
       }}
     >
@@ -169,8 +187,8 @@ export default function GlobalParticles() {
           </filter>
         </defs>
 
-        {/* Connections */}
-        {connections.map((conn, i) => 
+        {/* Single layer connections */}
+        {connections.map((conn, i) =>
           conn && (
             <line
               key={`conn-${i}`}
@@ -184,14 +202,13 @@ export default function GlobalParticles() {
             />
           )
         )}
-        
-        {/* Particles */}
+
+        {/* Single layer particles */}
         {particles.map((p) => {
           const dx = smoothMouseX.get() - p.x;
           const dy = smoothMouseY.get() - p.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           const scale = dist < 100 ? 1.5 : 1;
-
           return (
             <motion.circle
               key={p.id}
@@ -201,14 +218,8 @@ export default function GlobalParticles() {
               fill="#0ABEFF"
               filter="url(#particle-glow)"
               opacity="0.8"
-              animate={{
-                scale: [scale, scale * 1.1, scale],
-              }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
+              animate={{ scale: [scale, scale * 1.1, scale] }}
+              transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
             />
           );
         })}

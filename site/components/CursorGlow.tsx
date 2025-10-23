@@ -46,7 +46,7 @@ export default function CursorGlow() {
   const glow = (
     <div
       className="pointer-events-none"
-      style={{ position: 'fixed', inset: 0, zIndex: 2 }}
+      style={{ position: 'fixed', inset: 0, zIndex: 1 }}
     >
       {/* Center the glow around the cursor by offsetting half its size */}
       <motion.div
@@ -59,12 +59,12 @@ export default function CursorGlow() {
           y: smoothY,
           translateX: '-50%',
           translateY: '-50%',
-          width: 360,
-          height: 360,
+          width: 560,
+          height: 560,
           borderRadius: '50%',
-          opacity: 0.18,
-          filter: 'blur(48px)',
-          background: 'radial-gradient(closest-side, rgba(10,190,255,0.65), rgba(10,190,255,0.25) 40%, rgba(10,190,255,0) 70%)',
+          opacity: 0.23,
+          filter: 'blur(72px)',
+          background: 'radial-gradient(closest-side, rgba(10,190,255,0.7), rgba(10,190,255,0.28) 42%, rgba(10,190,255,0) 72%)',
           mixBlendMode: 'screen',
         }}
       />
