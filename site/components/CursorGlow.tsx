@@ -13,6 +13,7 @@ import { createPortal } from 'react-dom';
  */
 export default function CursorGlow() {
   const [mounted, setMounted] = useState(false);
+  const [enabled, setEnabled] = useState(true);
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -25,6 +26,13 @@ export default function CursorGlow() {
 
   useEffect(() => {
     setMounted(true);
+    try {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      setEnabled(!mq.matches);
+      const listener = (e: MediaQueryListEvent) => setEnabled(!e.matches);
+      mq.addEventListener?.('change', listener);
+      return () => mq.removeEventListener?.('change', listener);
+    } catch {}
 
     const handleMouseMove = (e: MouseEvent) => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -41,7 +49,7 @@ export default function CursorGlow() {
     };
   }, [mouseX, mouseY]);
 
-  if (!mounted) return null;
+  if (!mounted || !enabled) return null;
 
   const glow = (
     <div

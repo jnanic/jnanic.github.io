@@ -1,5 +1,7 @@
 # Yash Sharma - Portfolio Website
 
+[![Deploy to GitHub Pages](https://github.com/jnanic/jnanic.github.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/jnanic/jnanic.github.io/actions/workflows/deploy.yml)
+
 A fast, minimalist portfolio website built with Next.js, TypeScript, and Tailwind CSS.
 
 ## 🚀 Features
@@ -24,7 +26,7 @@ A fast, minimalist portfolio website built with Next.js, TypeScript, and Tailwin
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm
 
 ### Install Dependencies
@@ -51,27 +53,30 @@ This creates a static export in the `out/` directory.
 
 ## 🚢 Deployment
 
-### GitHub Pages
+### GitHub Pages (CI/CD)
 
-The site is configured for GitHub Pages deployment:
+This repo is configured to auto-deploy to GitHub Pages via GitHub Actions.
 
-1. Build the static site:
-   ```bash
-   npm run build
-   ```
+- Workflow: `.github/workflows/deploy.yml`
+- Trigger: Push to `master` (or `main`)
+- Build directory: `site/`
+- Static export output: `site/out/`
+- Custom domain: `yashsharma.dev` (via `public/CNAME`) and `public/.nojekyll`
 
-2. The output will be in the `out/` directory
+Deploy steps:
 
-3. Push to the `gh-pages` branch or configure GitHub Actions (workflow coming soon)
+1. Merge your changes into `master` (or `main`).
+2. The "Deploy to GitHub Pages" action will build and publish automatically.
+3. Your site will be live at [https://yashsharma.dev](https://yashsharma.dev) once the job finishes (~1–2 minutes).
 
-### Manual Deployment
+### Manual Deployment (optional)
 
-1. Build: `npm run build`
-2. Upload the `out/` folder to your hosting provider
+1. Build locally: `npm run build`
+2. Serve or upload the `site/out/` directory to a static host of your choice
 
 ## 📁 Project Structure
 
-```
+```text
 site/
 ├── app/
 │   ├── layout.tsx       # Root layout with theme provider

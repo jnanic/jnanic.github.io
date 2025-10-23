@@ -16,6 +16,7 @@ export default function GlobalParticles() {
     vy: number;
   }>>([]);
   const [mounted, setMounted] = useState(false);
+  const [enabled, setEnabled] = useState(true);
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -26,9 +27,18 @@ export default function GlobalParticles() {
 
   useEffect(() => {
     setMounted(true);
+    // Respect prefers-reduced-motion
+    try {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      setEnabled(!mq.matches);
+      const listener = (e: MediaQueryListEvent) => setEnabled(!e.matches);
+      mq.addEventListener?.('change', listener);
+      return () => mq.removeEventListener?.('change', listener);
+    } catch {}
   }, []);
 
   useEffect(() => {
+    if (!enabled) return;
     const COUNT = 90;
     const initParticles = (count: number) =>
       Array.from({ length: count }, (_, i) => ({
@@ -106,6 +116,14 @@ export default function GlobalParticles() {
       );
     }, 32);
 
+    // Pause updates when tab is hidden to save CPU
+    const onVisibility = () => {
+      if (document.hidden) {
+        clearInterval(interval);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
     // Re-seed on significant viewport resize for a bigger visual reset
     let lastW = window.innerWidth;
     let lastH = window.innerHeight;
@@ -124,8 +142,9 @@ export default function GlobalParticles() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', onResize);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [mouseX, mouseY]);
+  }, [mouseX, mouseY, enabled]);
 
   // Calculate connections
   const connections = particles.flatMap((p1, i) =>
@@ -149,7 +168,7 @@ export default function GlobalParticles() {
   ).filter(Boolean);
   // No section-based crossfade — particles remain constant across sections
 
-  if (!mounted) return null;
+  if (!mounted || !enabled) return null;
 
   const particleLayer = (
     <div 
