@@ -39,7 +39,14 @@ export default function GlobalParticles() {
 
   useEffect(() => {
     if (!enabled) return;
-    const COUNT = 90;
+
+    const getCount = () => {
+      const w = window.innerWidth;
+      if (w < 640) return 55; // sm-
+      if (w < 1024) return 75; // md-
+      return 90; // lg+
+    };
+
     const initParticles = (count: number) =>
       Array.from({ length: count }, (_, i) => ({
         id: i,
@@ -50,7 +57,8 @@ export default function GlobalParticles() {
         vy: (Math.random() - 0.5) * 1.6,
       }));
 
-    setParticles(initParticles(COUNT));
+    let count = getCount();
+    setParticles(initParticles(count));
 
     // Track mouse in viewport coordinates
     const handleMouseMove = (e: MouseEvent) => {
@@ -132,7 +140,8 @@ export default function GlobalParticles() {
       const h = window.innerHeight;
       if (Math.abs(w - lastW) / Math.max(1, lastW) > 0.12 || Math.abs(h - lastH) / Math.max(1, lastH) > 0.12) {
         lastW = w; lastH = h;
-        setParticles(initParticles(COUNT));
+        const newCount = getCount();
+        setParticles(initParticles(newCount));
       }
     };
     window.addEventListener('resize', onResize);
