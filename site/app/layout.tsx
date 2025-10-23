@@ -16,6 +16,14 @@ export const metadata: Metadata = {
   description: 'Personal portfolio of Yash Sharma - showcasing projects, skills, and experience.',
   keywords: ['Yash Sharma', 'Portfolio', 'Web Developer', 'Software Engineer', 'Student'],
   authors: [{ name: 'Yash Sharma' }],
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon.png', type: 'image/png', sizes: '16x16' },
+    ],
+    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.png',
+  },
   openGraph: {
     title: 'Yash Sharma - Student / Engineer / Nerd',
     description: 'Personal portfolio of Yash Sharma - showcasing projects, skills, and experience.',
