@@ -26,16 +26,16 @@ export default function CursorGlow() {
 
   useEffect(() => {
     setMounted(true);
+
+    // Setup reduced motion listener without early return so we still bind mouse events
+    let mq: MediaQueryList | null = null;
+    let mqListener: ((e: MediaQueryListEvent) => void) | null = null;
     try {
-      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      mq = window.matchMedia('(prefers-reduced-motion: reduce)');
       setEnabled(!mq.matches);
-      const listener = (e: MediaQueryListEvent) => setEnabled(!e.matches);
-      mq.addEventListener?.('change', listener);
-      return () => mq.removeEventListener?.('change', listener);
-    } catch (error) {
-      // Log error to help with debugging, but fail gracefully for users
-      console.error("CursorGlow: Error setting up prefers-reduced-motion listener", error);
-    }
+      mqListener = (e: MediaQueryListEvent) => setEnabled(!e.matches);
+      mq.addEventListener?.('change', mqListener as any);
+    } catch {}
 
     const handleMouseMove = (e: MouseEvent) => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -49,6 +49,9 @@ export default function CursorGlow() {
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      try {
+        if (mq && mqListener) mq.removeEventListener?.('change', mqListener as any);
+      } catch {}
     };
   }, [mouseX, mouseY]);
 

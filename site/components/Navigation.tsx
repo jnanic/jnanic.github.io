@@ -1,9 +1,12 @@
  'use client';
 
  import React, { useEffect, useState } from 'react';
+ import { usePathname } from 'next/navigation';
  import ThemeToggle from './ThemeToggle';
 
  export default function Navigation() {
+   const pathname = usePathname();
+   const showThemeToggle = pathname === '/';
    const [isOpen, setIsOpen] = useState(false);
 
    useEffect(() => {
@@ -38,9 +41,11 @@
      <>
        {/* Top-right controls: Theme toggle + Hamburger */}
        <div className="fixed right-6 top-6 z-50 flex items-center gap-3">
-         <div className="flex items-center">
-           <ThemeToggle />
-         </div>
+         {showThemeToggle && (
+           <div className="flex items-center">
+             <ThemeToggle />
+           </div>
+         )}
 
          <button
            onClick={() => setIsOpen((s) => !s)}

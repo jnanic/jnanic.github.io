@@ -39,7 +39,15 @@ export default function GlobalParticles() {
 
   useEffect(() => {
     if (!enabled) return;
-    const COUNT = 90;
+
+    const isCoarse = window.matchMedia('(pointer: coarse)').matches;
+    const getCount = () => {
+      const w = window.innerWidth;
+      if (w < 640) return isCoarse ? 30 : 45; // sm-
+      if (w < 1024) return isCoarse ? 45 : 65; // md-
+      return isCoarse ? 60 : 85; // lg+
+    };
+
     const initParticles = (count: number) =>
       Array.from({ length: count }, (_, i) => ({
         id: i,
@@ -50,7 +58,8 @@ export default function GlobalParticles() {
         vy: (Math.random() - 0.5) * 1.6,
       }));
 
-    setParticles(initParticles(COUNT));
+    let count = getCount();
+    setParticles(initParticles(count));
 
     // Track mouse in viewport coordinates
     const handleMouseMove = (e: MouseEvent) => {
@@ -63,7 +72,7 @@ export default function GlobalParticles() {
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     // Animate particles within viewport
-    const interval = setInterval(() => {
+    const tick = () => {
       setParticles((prev) =>
         prev.map((p) => {
           let newX = p.x + p.vx;
@@ -114,12 +123,18 @@ export default function GlobalParticles() {
           return { ...p, x: newX, y: newY, vx: newVx, vy: newVy };
         })
       );
-    }, 32);
+      // Slightly slower on touch devices to reduce CPU/battery
+      const delay = isCoarse ? 64 : 32;
+      rafRef.current = window.setTimeout(tick, delay) as unknown as number;
+    };
+    tick();
 
     // Pause updates when tab is hidden to save CPU
     const onVisibility = () => {
-      if (document.hidden) {
-        clearInterval(interval);
+      if (document.hidden && rafRef.current) {
+        clearTimeout(rafRef.current);
+      } else if (!document.hidden && !rafRef.current) {
+        tick();
       }
     };
     document.addEventListener('visibilitychange', onVisibility);
@@ -132,13 +147,14 @@ export default function GlobalParticles() {
       const h = window.innerHeight;
       if (Math.abs(w - lastW) / Math.max(1, lastW) > 0.12 || Math.abs(h - lastH) / Math.max(1, lastH) > 0.12) {
         lastW = w; lastH = h;
-        setParticles(initParticles(COUNT));
+        const newCount = getCount();
+        setParticles(initParticles(newCount));
       }
     };
     window.addEventListener('resize', onResize);
 
     return () => {
-      clearInterval(interval);
+      if (rafRef.current) clearTimeout(rafRef.current);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', onResize);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -147,7 +163,8 @@ export default function GlobalParticles() {
   }, [mouseX, mouseY, enabled]);
 
   // Calculate connections
-  const connections = particles.flatMap((p1, i) =>
+  const drawConnections = typeof window !== 'undefined' && !window.matchMedia('(pointer: coarse)').matches && window.innerWidth >= 640;
+  const connections = drawConnections ? particles.flatMap((p1, i) =>
     particles.slice(i + 1).map((p2) => {
       const dx = p2.x - p1.x;
       const dy = p2.y - p1.y;
@@ -165,7 +182,7 @@ export default function GlobalParticles() {
       }
       return null;
     })
-  ).filter(Boolean);
+  ).filter(Boolean) : [];
   // No section-based crossfade — particles remain constant across sections
 
   if (!mounted || !enabled) return null;
@@ -206,7 +223,7 @@ export default function GlobalParticles() {
           </filter>
         </defs>
 
-        {/* Single layer connections */}
+        {/* Connections (disabled on touch/small screens) */}
         {connections.map((conn, i) =>
           conn && (
             <line

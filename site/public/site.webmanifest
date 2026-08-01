@@ -1,0 +1,30 @@
+{
+  "name": "Yash Sharma",
+  "short_name": "Yash",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000500",
+  "theme_color": "#0ABEFF",
+  "description": "Personal portfolio of Yash Sharma - projects, skills, and experience.",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
