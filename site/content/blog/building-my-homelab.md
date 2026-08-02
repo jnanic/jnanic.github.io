@@ -2,7 +2,7 @@
 title: "Building My Proxmox Homelab, Part 1: Planning the Hardware"
 description: "How I planned a quiet, upgradeable Proxmox homelab for development, OMSCS coursework, self-hosting, and future local AI workloads."
 publishedDate: "2026-08-02"
-draft: true
+draft: false
 tags:
   - Homelab
   - Proxmox
