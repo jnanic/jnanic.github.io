@@ -32,13 +32,10 @@ export default function About() {
               to real-world problems.
             </p>
             <p className="mb-4 text-lg leading-relaxed text-muted md:text-xl">
-              I specialize in full-stack development, with experience in Python, React, 
-              and modern web technologies. I enjoy leading teams and bringing ideas to life 
-              through clean, efficient code.
+              I enjoy building projects that connect software with real-world systems, from machine learning experiments and full-stack applications to self-hosted services and homelab infrastructure.
             </p>
             <p className="text-lg leading-relaxed text-muted md:text-xl">
-              When I'm not coding, you'll find me exploring new technologies, 
-              contributing to open source, or working on exciting hackathon projects.
+              I'm currently expanding my knowledge through OMSCS coursework while exploring areas such as virtualization, Linux, networking, MLOps, AI inference and infrastructure.
             </p>
             
             {/* CV Link */}

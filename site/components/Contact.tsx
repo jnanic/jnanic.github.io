@@ -16,7 +16,7 @@ export default function Contact() {
         </h2>
         
         <p className="mb-16 text-xl text-muted md:text-2xl">
-          I'm always open to new opportunities and conversations
+          I'm always open to new opportunities and conversations!
         </p>
 
         {/* Large Icon Links */}
