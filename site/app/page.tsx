@@ -3,7 +3,6 @@ import Hero from '@/components/Hero';
 import About from '@/components/About';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
-import CircuitBackground from '@/components/CircuitBackground';
 
 // Defer heavy client components to reduce first-load JS
 const GlobalParticles = dynamic(() => import('@/components/GlobalParticles'), { ssr: false, loading: () => null });
@@ -21,29 +20,12 @@ const Projects = dynamic(() => import('@/components/Projects'), { ssr: false, lo
 
 export default function Home() {
   return (
-    <>
-      {/* Global Particle Network - rendered outside main to ensure true fixed positioning */}
-      <GlobalParticles />
-      
-  <main className="min-h-screen relative z-10">
-        {/* Global Circuit Background */}
-        <CircuitBackground />
-        
-        {/* Hero Section */}
-        <Hero />
-
-      {/* About Section */}
+    <main className="min-h-screen relative z-10">
+      <Hero />
       <About />
-
-      {/* Projects Section */}
       <Projects />
-
-      {/* Contact Section */}
       <Contact />
-
-      {/* Footer */}
       <Footer />
     </main>
-    </>
   );
 }

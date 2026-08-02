@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Only enforce static export in production; dev mode doesn't need it and
+  // Next.js 14.2 incorrectly rejects dynamic App Router routes with output:'export' in dev.
+  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
   images: {
     unoptimized: true,
   },

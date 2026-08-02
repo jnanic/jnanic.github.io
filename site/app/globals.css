@@ -127,3 +127,45 @@
   from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
   to   { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
 }
+
+/* Blog article typography */
+.blog-content { line-height: 1.8; }
+.blog-content h2 { margin-top: 2.5rem; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700; }
+.blog-content h3 { margin-top: 2rem; margin-bottom: 0.75rem; font-size: 1.25rem; font-weight: 600; }
+.blog-content h4 { margin-top: 1.5rem; margin-bottom: 0.5rem; font-weight: 600; }
+.blog-content p { margin-bottom: 1.25rem; }
+.blog-content a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 3px; }
+.blog-content a:hover { opacity: 0.8; }
+.blog-content ul { margin-bottom: 1.25rem; padding-left: 1.5rem; list-style-type: disc; }
+.blog-content ol { margin-bottom: 1.25rem; padding-left: 1.5rem; list-style-type: decimal; }
+.blog-content li { margin-bottom: 0.375rem; }
+.blog-content blockquote {
+  margin: 1.5rem 0;
+  padding: 0.75rem 1.25rem;
+  border-left: 3px solid var(--color-primary);
+  color: var(--color-muted);
+  font-style: italic;
+}
+.blog-content hr { margin: 2.5rem 0; border-color: rgba(10,190,255,0.2); }
+.blog-content code {
+  background: rgba(10,190,255,0.1);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.875em;
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+  color: var(--color-primary);
+}
+.blog-content pre {
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(10,190,255,0.2);
+  background: #0a0f0a;
+  padding: 1.25rem 1.5rem;
+}
+.blog-content pre code {
+  background: transparent;
+  padding: 0;
+  color: var(--color-fg);
+  font-size: 0.875rem;
+}

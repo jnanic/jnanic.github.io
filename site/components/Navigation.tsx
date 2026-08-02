@@ -1,12 +1,13 @@
  'use client';
 
  import React, { useEffect, useState } from 'react';
+ import Link from 'next/link';
  import { usePathname } from 'next/navigation';
  import ThemeToggle from './ThemeToggle';
 
  export default function Navigation() {
    const pathname = usePathname();
-   const showThemeToggle = pathname === '/';
+   const showThemeToggle = pathname === '/' || pathname.startsWith('/blog');
    const [isOpen, setIsOpen] = useState(false);
 
    useEffect(() => {
@@ -29,6 +30,7 @@
      { label: 'About', href: '#about' },
      { label: 'Projects', href: '#projects' },
      { label: 'Contact', href: '#contact' },
+     { label: 'Blog', href: '/blog/' },
    ];
 
    const handleNavClick = (href: string) => {
@@ -90,25 +92,47 @@
          aria-label="Main navigation"
        >
          <div className="flex h-full flex-col items-start justify-center space-y-8 px-16">
-           {navItems.map((item, i) => (
-             <a
-               key={item.href}
-               href={item.href}
-               onClick={(e) => {
-                 e.preventDefault();
-                 handleNavClick(item.href);
-               }}
-               className="group text-2xl font-medium transition-all hover:text-brand-zaffre focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-zaffre"
-               style={{
-                 transitionDelay: isOpen ? `${i * 50}ms` : '0ms',
-                 opacity: isOpen ? 1 : 0,
-                 transform: isOpen ? 'translateX(0)' : 'translateX(20px)',
-               }}
-             >
-               {item.label}
-               <span className="block h-0.5 w-0 bg-brand-zaffre transition-all duration-300 group-hover:w-full" />
-             </a>
-           ))}
+           {navItems.map((item, i) => {
+             const isPageLink = item.href.startsWith('/');
+             const isActive = isPageLink && pathname.startsWith(item.href.replace(/\/$/, ''));
+             const sharedStyle = {
+               transitionDelay: isOpen ? `${i * 50}ms` : '0ms',
+               opacity: isOpen ? 1 : 0,
+               transform: isOpen ? 'translateX(0)' : 'translateX(20px)',
+             };
+             const sharedClass = 'group text-2xl font-medium transition-all hover:text-brand-zaffre focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-zaffre';
+
+             if (isPageLink) {
+               return (
+                 <Link
+                   key={item.href}
+                   href={item.href}
+                   onClick={() => setIsOpen(false)}
+                   className={sharedClass}
+                   style={sharedStyle}
+                 >
+                   {item.label}
+                   <span className={`block h-0.5 bg-brand-zaffre transition-all duration-300 ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+                 </Link>
+               );
+             }
+
+             return (
+               <a
+                 key={item.href}
+                 href={item.href}
+                 onClick={(e) => {
+                   e.preventDefault();
+                   handleNavClick(item.href);
+                 }}
+                 className={sharedClass}
+                 style={sharedStyle}
+               >
+                 {item.label}
+                 <span className="block h-0.5 w-0 bg-brand-zaffre transition-all duration-300 group-hover:w-full" />
+               </a>
+             );
+           })}
          </div>
        </nav>
      </>

@@ -5,6 +5,8 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import dynamic from 'next/dynamic';
 import Navigation from '@/components/Navigation';
 const CursorGlow = dynamic(() => import('@/components/CursorGlow'), { ssr: false, loading: () => null });
+const GlobalParticles = dynamic(() => import('@/components/GlobalParticles'), { ssr: false, loading: () => null });
+const CircuitBackground = dynamic(() => import('@/components/CircuitBackground'), { ssr: false, loading: () => null });
 
 const inter = Inter({
   subsets: ['latin'],
@@ -13,6 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://yashsharma.dev'),
   title: 'Yash Sharma - Student / Engineer / Nerd',
   description: 'Personal portfolio of Yash Sharma - showcasing projects, skills, and experience.',
   keywords: ['Yash Sharma', 'Portfolio', 'Web Developer', 'Software Engineer', 'Student'],
@@ -69,6 +72,8 @@ export default function RootLayout({
       </head>
       <body className={inter.variable}>
         <ThemeProvider>
+          <CircuitBackground />
+          <GlobalParticles />
           <CursorGlow />
           <Navigation />
           {children}

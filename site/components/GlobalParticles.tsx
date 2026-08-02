@@ -2,12 +2,17 @@
 
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { useEffect, useState, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { createPortal } from 'react-dom';
 
 /**
  * Global particle network - fixed to viewport, doesn't scroll
  */
 export default function GlobalParticles() {
+  const pathname = usePathname();
+  // Disable on blog post pages — moving elements hurt reading focus
+  const isBlogPost = /^\/blog\/.+/.test(pathname ?? '');
+
   const [particles, setParticles] = useState<Array<{
     id: number;
     x: number;
@@ -185,7 +190,7 @@ export default function GlobalParticles() {
   ).filter(Boolean) : [];
   // No section-based crossfade — particles remain constant across sections
 
-  if (!mounted || !enabled) return null;
+  if (!mounted || !enabled || isBlogPost) return null;
 
   const particleLayer = (
     <div 
