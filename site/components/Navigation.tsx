@@ -41,7 +41,7 @@
 
    return (
      <>
-       {/* Top-right controls: Theme toggle + Hamburger */}}
+      {/* Top-right controls: Theme toggle + Hamburger */}
        <div className="fixed right-6 top-6 z-50 flex items-center gap-3">
          {showThemeToggle && (
            <div className="flex items-center">
