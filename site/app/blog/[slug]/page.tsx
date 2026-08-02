@@ -38,8 +38,20 @@ export default function BlogPost({ params }: Props) {
   const post = getPostBySlug(params.slug);
   if (!post) notFound();
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.description,
+    datePublished: post.publishedDate.toISOString(),
+    dateModified: (post.updatedDate ?? post.publishedDate).toISOString(),
+    author: { '@type': 'Person', name: 'Yash Sharma', url: 'https://yashsharma.dev' },
+    publisher: { '@type': 'Person', name: 'Yash Sharma' },
+  };
+
   return (
     <main className="relative z-10 min-h-screen px-4 py-24 md:py-32">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mx-auto max-w-3xl">
 
         {/* Breadcrumb */}

@@ -29,8 +29,8 @@
      { label: 'Home', href: '#hero' },
      { label: 'About', href: '#about' },
      { label: 'Projects', href: '#projects' },
+     { label: 'Writing', href: '/blog/' },
      { label: 'Contact', href: '#contact' },
-     { label: 'Blog', href: '/blog/' },
    ];
 
    const handleNavClick = (href: string) => {
@@ -41,7 +41,7 @@
 
    return (
      <>
-       {/* Top-right controls: Theme toggle + Hamburger */}
+       {/* Top-right controls: Theme toggle + Hamburger */}}
        <div className="fixed right-6 top-6 z-50 flex items-center gap-3">
          {showThemeToggle && (
            <div className="flex items-center">

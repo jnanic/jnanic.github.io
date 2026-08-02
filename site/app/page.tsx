@@ -3,6 +3,7 @@ import Hero from '@/components/Hero';
 import About from '@/components/About';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
+import WritingPreview from '@/components/WritingPreview';
 
 // Defer heavy client components to reduce first-load JS
 const GlobalParticles = dynamic(() => import('@/components/GlobalParticles'), { ssr: false, loading: () => null });
@@ -24,6 +25,7 @@ export default function Home() {
       <Hero />
       <About />
       <Projects />
+      <WritingPreview />
       <Contact />
       <Footer />
     </main>
