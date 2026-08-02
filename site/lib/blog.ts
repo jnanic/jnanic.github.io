@@ -13,6 +13,7 @@ export interface BlogPost {
   tags: string[];
   coverImage?: string;
   contentHtml: string;
+  readingTime: number; // minutes
 }
 
 const postsDir = path.join(process.cwd(), 'content/blog');
@@ -21,6 +22,11 @@ const postsDir = path.join(process.cwd(), 'content/blog');
 function toHtml(markdown: string): string {
   const result = marked.parse(markdown);
   return typeof result === 'string' ? result : '';
+}
+
+function readingTime(markdown: string): number {
+  const words = markdown.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / 200));
 }
 
 function readPost(filename: string): BlogPost {
@@ -37,6 +43,7 @@ function readPost(filename: string): BlogPost {
     tags: Array.isArray(data.tags) ? (data.tags as string[]) : [],
     coverImage: data.coverImage ? String(data.coverImage) : undefined,
     contentHtml: toHtml(content),
+    readingTime: readingTime(content),
   };
 }
 

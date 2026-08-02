@@ -22,9 +22,6 @@ export const metadata: Metadata = {
   authors: [{ name: 'Yash Sharma' }],
   icons: {
     icon: [
-      // Modern browsers prefer SVG when available
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      // PNG fallbacks/sizes for broad compatibility
       { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
       { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
       { url: '/android-chrome-192x192.png', type: 'image/png', sizes: '192x192' },

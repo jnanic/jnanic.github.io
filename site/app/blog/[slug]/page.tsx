@@ -63,6 +63,7 @@ export default function BlogPost({ params }: Props) {
                 Updated {formatDate(post.updatedDate)}
               </time>
             )}
+            <span>{post.readingTime} min read</span>
           </div>
           {post.tags.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
