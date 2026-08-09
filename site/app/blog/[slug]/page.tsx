@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAllPostSlugs, getPostBySlug } from '@/lib/blog';
+import MermaidRendererWithTheme from '@/components/MermaidRendererWithTheme';
 
 interface Props {
   params: { slug: string };
@@ -95,6 +96,8 @@ export default function BlogPost({ params }: Props) {
           className="blog-content"
           dangerouslySetInnerHTML={{ __html: post.contentHtml }}
         />
+        {/* Hydrates data-mermaid placeholders into real diagrams, client-side only */}
+        <MermaidRendererWithTheme />
 
         {/* Post footer — surfaced after finishing the article */}
         <footer className="mt-16 border-t border-brand-zaffre/35 pt-8 flex items-center justify-between gap-4 flex-wrap">

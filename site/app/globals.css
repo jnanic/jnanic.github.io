@@ -173,10 +173,34 @@
 
 /* Tables */
 .blog-content table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.95rem; }
-.blog-content thead th { padding: 0.6rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid rgba(10,190,255,0.35); }
+.blog-content thead th { padding: 0.6rem 1rem; font-weight: 600; border-bottom: 2px solid rgba(10,190,255,0.35); }
 .blog-content tbody td { padding: 0.6rem 1rem; border-bottom: 1px solid rgba(10,190,255,0.12); }
 .blog-content tbody tr:last-child td { border-bottom: none; }
 .blog-content tbody tr:hover td { background: rgba(10,190,255,0.04); }
+/* Respect GFM column alignment (marked emits align="left|right|center" attributes) */
+.blog-content th, .blog-content td { text-align: left; }
+.blog-content th[align="right"], .blog-content td[align="right"] { text-align: right; }
+.blog-content th[align="center"], .blog-content td[align="center"] { text-align: center; }
 
 /* Images */
 .blog-content img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 1.5rem auto; display: block; }
+
+/* Mermaid diagrams */
+.mermaid-diagram {
+  width: 100%;
+  overflow-x: auto;
+  margin: 2rem 0;
+  text-align: center;
+}
+.mermaid-diagram svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.mermaid-error {
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(247, 37, 58, 0.35);
+  border-radius: 0.5rem;
+  background: rgba(247, 37, 58, 0.06);
+}

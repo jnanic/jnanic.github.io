@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { marked } from 'marked';
+import { marked, type Tokens } from 'marked';
 
 export interface BlogPost {
   slug: string;
@@ -18,9 +18,35 @@ export interface BlogPost {
 
 const postsDir = path.join(process.cwd(), 'content/blog');
 
+// Custom renderer: emit a data-attribute placeholder for mermaid blocks so the
+// client-side MermaidRenderer component can hydrate them into real SVGs.
+// Supports optional width in the info string:  ```mermaid width=600
+const renderer = new marked.Renderer();
+renderer.code = function ({ text, lang }: Tokens.Code): string {
+  const infoLang = (lang ?? '').trim();
+
+  if (infoLang.startsWith('mermaid')) {
+    const encoded = Buffer.from(text).toString('base64');
+    // Parse optional  width=<number>  from the info string, e.g. "mermaid width=500"
+    const widthMatch = infoLang.match(/\bwidth=(\d+)\b/);
+    const widthAttr = widthMatch ? ` data-mermaid-width="${widthMatch[1]}"` : '';
+    return `<div data-mermaid="${encoded}"${widthAttr} aria-label="Mermaid diagram"></div>\n`;
+  }
+
+  // For all other fenced code blocks, produce the same HTML marked would by default.
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+  const langClass = infoLang ? ` class="language-${infoLang}"` : '';
+  return `<pre><code${langClass}>${escaped}\n</code></pre>\n`;
+};
+
 // Synchronous parse — safe as long as we don't register async marked extensions
 function toHtml(markdown: string): string {
-  const result = marked.parse(markdown);
+  const result = marked.parse(markdown, { renderer });
   return typeof result === 'string' ? result : '';
 }
 
