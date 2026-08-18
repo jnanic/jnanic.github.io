@@ -91,80 +91,6 @@ The temporary recovery was straightforward: wait for the address to exist and re
 
 The permanent fix was more important.
 
-```mermaid
-flowchart LR
-    subgraph before["Before the fix"]
-        direction TB
-
-        B_BOOT["VM boonkhnknkts"]
-        B_NETWORK["Network configuration begins"]
-        B_DOCKER["Docker starts too early"]
-        B_ADDRESS["Expected address is unavailable"]
-        B_BINDINGS["Published-port bindings are missing"]
-        B_RUNNING["Containers appear to be running"]
-        B_RESULT["Applications remain unreachable"]
-
-        B_BOOT --> B_NETWORK
-        B_NETWORK --> B_DOCKER
-        B_DOCKER --> B_ADDRESS
-        B_ADDRESS --> B_BINDINGS
-        B_BINDINGS --> B_RUNNING
-        B_RUNNING --> B_RESULT
-    end
-
-    subgraph after["After the fix"]
-        direction TB
-
-        A_BOOT["VM boots"]
-        A_NETWORK["Usable network state is established"]
-        A_ONLINE["Network-online target completes"]
-        A_DOCKER["Docker starts afterward"]
-        A_BINDINGS["Published-port bindings are created"]
-        A_RESULT["Services return automatically"]
-
-        A_BOOT --> A_NETWORK
-        A_NETWORK --> A_ONLINE
-        A_ONLINE --> A_DOCKER
-        A_DOCKER --> A_BINDINGS
-        A_BINDINGS --> A_RESULT
-    end
-
-    B_BOOT ~~~ A_BOOT
-    B_NETWORK ~~~ A_NETWORK
-    B_DOCKER ~~~ A_ONLINE
-    B_ADDRESS ~~~ A_DOCKER
-    B_BINDINGS ~~~ A_BINDINGS
-    B_RUNNING ~~~ A_RESULT
-```
-
-I strengthened the VM’s network-readiness behavior so Docker waits for usable network state rather than merely for the networking service to begin starting. Then I performed a controlled reboot.
-
-This time the sequence behaved correctly:
-
-1. the VM obtained its expected network state;
-2. the online-network target completed;
-3. Docker started;
-4. published ports appeared automatically; and
-5. application HTTP checks succeeded without manual recreation.
-
-Containers were no longer Schrödinger’s services: alive inside Docker and unreachable everywhere else.
-
-This was exactly the kind of failure that a normal uptime check might miss until after a reboot. The services had worked for weeks. The configuration only revealed its weakness when the startup sequence changed.
-
-Reboot behavior is part of the deployment, even if the system spends almost all of its time not rebooting.
-
-## Making Git the deployment authority
-
-The Docker recovery raised another question: how closely did the live Compose configuration still match the repository?
-
-I compared the deployed definitions with the sanitized Git versions one project at a time.
-
-The differences were intentional. Live files contained machine-local values and protected configuration references, while the repository used placeholders and examples. Some YAML had also been reorganized to reduce duplication.
-
-The functional behavior remained equivalent.
-
-That gave the repository a stronger role than “a collection of files that look similar to production.” It became the preferred desired-state source for the Docker projects.
-
 ```mermaid width=600
 flowchart LR
     subgraph before["Before the fix"]
@@ -209,6 +135,65 @@ flowchart LR
     B_RESULT ~~~ A_RESULT
 ```
 
+I strengthened the VM’s network-readiness behavior so Docker waits for usable network state rather than merely for the networking service to begin starting. Then I performed a controlled reboot.
+
+This time the sequence behaved correctly:
+
+1. the VM obtained its expected network state;
+2. the online-network target completed;
+3. Docker started;
+4. published ports appeared automatically; and
+5. application HTTP checks succeeded without manual recreation.
+
+Containers were no longer Schrödinger’s services: alive inside Docker and unreachable everywhere else.
+
+This was exactly the kind of failure that a normal uptime check might miss until after a reboot. The services had worked for weeks. The configuration only revealed its weakness when the startup sequence changed.
+
+Reboot behavior is part of the deployment, even if the system spends almost all of its time not rebooting.
+
+## Making Git the deployment authority
+
+The Docker recovery raised another question: how closely did the live Compose configuration still match the repository?
+
+I compared the deployed definitions with the sanitized Git versions one project at a time.
+
+The differences were intentional. Live files contained machine-local values and protected configuration references, while the repository used placeholders and examples. Some YAML had also been reorganized to reduce duplication.
+
+The functional behavior remained equivalent.
+
+That gave the repository a stronger role than “a collection of files that look similar to production.” It became the preferred desired-state source for the Docker projects.
+
+```mermaid
+flowchart TB
+    subgraph repository["Repository workflow - Mac"]
+        direction LR
+
+        CHANGE["Review<br/>change"]
+        VALIDATE["Run repository<br/>validation"]
+        MAIN["Merge into<br/>main"]
+        PULL["Pull main on<br/>the target VM"]
+
+        CHANGE --> VALIDATE
+        VALIDATE --> MAIN
+        MAIN --> PULL
+    end
+
+    subgraph deployment["Deployment workflow - Target VM"]
+        direction LR
+
+        BACKUP["Confirm current<br/>backup"]
+        RENDER["Render and inspect<br/>configuration"]
+        APPLY["Apply controlled<br/>deployment"]
+        VERIFY["Verify result and<br/>update checkpoint"]
+
+        BACKUP --> RENDER
+        RENDER --> APPLY
+        APPLY --> VERIFY
+    end
+
+    repository --> deployment
+```
+
 The separation is now explicit:
 
 - Git stores deployment definitions and documentation.
@@ -216,11 +201,15 @@ The separation is now explicit:
 - Credentials and machine-local values remain outside Git.
 - Live changes must be reconciled deliberately rather than becoming permanent undocumented configuration.
 
+That deployment workflow now includes a backup gate. During this work, I created and integrity-checked current database and configuration backups before applying further changes. I have not performed a restore test yet, so I consider those backups verified for integrity, not restore-validated.
+
 I also found similar drift on Homepage. The service was healthy, but its live environment and secret-file layout predated the newer repository structure. Existing URLs were still stored directly in live configuration instead of using the planned machine-local variables.
 
 I did not “fix” that during an unrelated task. The drift is understood and can be reconciled through its own controlled change.
 
 Finding drift is not permission to rewrite a working system immediately.
+
+This deployment model still doesn't scratch the itch for me to be honest. There's are multiple moving parts which can break and separation of documentation and build scripts seems paramount. As someone with DevOps experience, I think I can design a bit better deployment pipeline.
 
 ## Building a private research vault
 
@@ -284,33 +273,6 @@ Finally, I created a note through Obsidian and confirmed that it arrived on the 
 n8n also received access to one narrow Inbox directory inside the vault. It does not receive the entire research workspace. Future workflows can deposit material for review without gaining broad access to existing notes.
 
 This is the kind of integration I want more of: small, understandable, private, and useful even if no other part of the homelab changes.
-
-## The backup audit found an empty directory
-
-Before making deeper n8n changes, I ran the repository’s application-backup audit.
-
-It failed.
-
-The protected backup root existed and had safe permissions, but it contained no completed application or configuration backup sets.
-
-The scripts were already in Git. The live configuration required to run them was not installed.
-
-I created the protected machine-local configuration, ran the backup tools in dry-run mode, and reviewed the plan before allowing them to write anything.
-
-The first real backup produced logical PostgreSQL dumps for the application databases along with role metadata and a manifest. Each dump’s catalog was inspected to confirm that it was structurally readable.
-
-The second backup captured the Docker desired-state tree and protected configuration material required to reconstruct the service layout.
-
-After both completed, the audit passed its freshness, permission, manifest, and checksum checks.
-
-That is a meaningful improvement, but the validation boundary matters:
-
-- the archives exist;
-- their integrity metadata passes;
-- database dump catalogs can be read;
-- no end-to-end application restore was performed.
-
-A backup audit should make the system more trustworthy, not make the wording more optimistic.
 
 ## When a dashboard costs more than it is worth
 
@@ -389,4 +351,26 @@ Next comes the harder part: deciding how the storage should be owned, protected,
 
 For now, the most important process in the homelab spent fifteen hours doing absolutely nothing interesting.
 
-This time, that was exactly the result I wanted.
+## What I’m planning for Part 4
+
+The replacement disk has passed its intake tests, but that only answers whether I can use it.
+
+The unfinished storage design is also holding up several services I want to deploy. Immich needs a durable home for a growing photo and video library. Paperless-ngx will eventually hold documents that I do not want scattered across temporary volumes or an experimental storage layout.
+
+Both applications are relatively easy to start as containers. Deciding where their original files, databases, generated data, and backups should live is the harder and more important part.
+
+Before creating pools, formatting disks, or deploying those services, I want to answer several architectural questions:
+
+- Should the physical disks be owned directly by Proxmox or passed through to a dedicated storage VM?
+- What role should each available disk have?
+- How should photos, documents, application data, and shared files be separated?
+- How should VMs and containers access that storage without creating unnecessary permission or security problems?
+- How should redundancy, snapshots, backups, and restore testing complement one another?
+- How can I migrate existing data in stages while preserving a clear rollback path?
+- What should future expansion look like as these libraries grow?
+
+Part 4 will therefore begin with storage architecture rather than service installation. I want to compare the available designs, understand their failure modes, and document the tradeoffs before committing important data to any of them.
+
+Once that foundation is ready, Immich and Paperless-ngx can become more than containers that happen to be running. They can become services I am comfortable trusting with data I care about.
+
+The disk has finally stopped being the question.
