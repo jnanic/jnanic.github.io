@@ -11,6 +11,8 @@ tags:
 - Linux
 ---
 
+<img src="/blog/twobuttonspart5.jpg" alt="2 buttons meme" width="350" style="max-width:100%">
+
 Part 4 ended with Paperless-ngx running against storage provided by TrueNAS. The application worked, its database backup had survived an isolated restore test, and its startup gate could tell the intended NFS mount from an ordinary local directory.
 
 Building it also showed me how slow my development loop had become.
