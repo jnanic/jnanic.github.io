@@ -62,10 +62,12 @@ main
 1. It reads `.md` and `.mdx` files from `content/blog/`.
 2. `gray-matter` parses the frontmatter.
 3. `marked` converts the Markdown body to HTML.
-4. A custom code-block renderer converts Mermaid fences into base64-backed placeholders.
+4. A custom code-block renderer converts Mermaid fences into base64-backed placeholders with semantic size and caption metadata.
 5. Posts are sorted newest first, and production lists omit posts with `draft: true`.
 
-`app/blog/[slug]/page.tsx` obtains every slug through `generateStaticParams`, adds article metadata and JSON-LD, and inserts the generated HTML into the article. `MermaidRendererWithTheme` observes the active theme and uses client-side portals to replace Mermaid placeholders with SVG diagrams.
+`app/blog/[slug]/page.tsx` obtains every slug through `generateStaticParams`, adds article metadata and JSON-LD, and inserts the generated HTML into the article. `MermaidRendererWithTheme` observes the active theme and uses client-side portals to replace Mermaid placeholders with responsive figures.
+
+Mermaid figures use `compact`, `standard`, or `wide` maximum-size presets instead of author-supplied pixels. Inline diagrams retain their natural SVG width rather than being enlarged to fill a preset, then scale down responsively when necessary. The renderer applies a shared high-contrast light or dark theme, preserves Mermaid's SVG accessibility metadata, and displays the fence caption in a `figcaption`. Wide or naturally overfull diagrams expose a native-dialog expanded view with contained scrolling; the inline figure remains viewport-clamped so it cannot create page-level horizontal overflow. Authoring syntax and accessibility requirements live in `README.md`.
 
 The supported `BlogPost` fields are defined by the interface in `lib/blog.ts`. `coverImage` is parsed for future presentation use but is not currently rendered by the index or article page.
 
@@ -79,7 +81,7 @@ Client-rendered functionality includes:
 - Responsive navigation state
 - Typing, project-card, cursor, and particle animation
 - Circuit-pattern seeding after hydration
-- Mermaid diagram hydration
+- Mermaid diagram hydration and optional expanded view
 - The custom 404 presentation
 
 Blog file access remains in server/build-time modules. Client components must not import `lib/blog.ts` because it depends on Node.js filesystem APIs.

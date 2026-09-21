@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import MermaidDiagram from '@/components/MermaidDiagram';
+import MermaidDiagram, { type MermaidSize } from '@/components/MermaidDiagram';
 
 interface DiagramEntry {
   el: Element;
   source: string;
-  width?: number;
+  size: MermaidSize;
+  caption?: string;
 }
 
 interface Props {
@@ -26,14 +27,23 @@ export default function MermaidRenderer({ theme }: Props) {
     const placeholders = Array.from(document.querySelectorAll('[data-mermaid]'));
     if (placeholders.length === 0) return;
 
+    const decode = (encoded: string): string => {
+      const bytes = Uint8Array.from(atob(encoded), (character) => character.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    };
+
     const entries: DiagramEntry[] = placeholders.map((el) => {
       const encoded = el.getAttribute('data-mermaid') ?? '';
-      const source = atob(encoded);
-      const rawWidth = el.getAttribute('data-mermaid-width');
-      const width = rawWidth ? parseInt(rawWidth, 10) : undefined;
+      const source = decode(encoded);
+      const rawSize = el.getAttribute('data-mermaid-size');
+      const size: MermaidSize = rawSize === 'compact' || rawSize === 'wide'
+        ? rawSize
+        : 'standard';
+      const encodedCaption = el.getAttribute('data-mermaid-caption');
+      const caption = encodedCaption ? decode(encodedCaption) : undefined;
       // Clear the placeholder content so the portal has a clean mount point
       el.innerHTML = '';
-      return { el, source, width };
+      return { el, source, size, caption };
     });
 
     setDiagrams(entries);
@@ -49,9 +59,15 @@ export default function MermaidRenderer({ theme }: Props) {
 
   return (
     <>
-      {diagrams.map(({ el, source, width }, i) =>
+      {diagrams.map(({ el, source, size, caption }, i) =>
         createPortal(
-          <MermaidDiagram key={i} source={source} theme={theme} width={width} />,
+          <MermaidDiagram
+            key={i}
+            source={source}
+            theme={theme}
+            size={size}
+            caption={caption}
+          />,
           el,
         ),
       )}

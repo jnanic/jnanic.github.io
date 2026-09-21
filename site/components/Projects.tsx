@@ -16,7 +16,7 @@ export default function Projects() {
   });
 
   return (
-    <section id="projects" className="relative py-8 md:py-12" ref={containerRef}>
+    <div ref={containerRef}>
       <div className="relative z-10 mx-auto max-w-4xl px-4">
         <motion.h2 
           initial={{ opacity: 0, y: -50 }}
@@ -47,7 +47,7 @@ export default function Projects() {
           })}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 

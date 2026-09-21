@@ -51,7 +51,26 @@ coverImage: "/blog/example.jpg" # optional
 ---
 ```
 
-Production builds exclude drafts from the blog index and sitemap. A fenced block marked `mermaid` is rendered as a client-side diagram; its info string can optionally include `width=600`.
+Production builds exclude drafts from the blog index and sitemap.
+
+### Mermaid diagrams
+
+Mermaid fences accept a semantic size and a quoted visible caption:
+
+````markdown
+```mermaid size=compact caption="Old development loop"
+flowchart TB
+    accTitle: Old development loop
+    accDescr: A change moves through editing, testing, and review, returning to editing when a host-specific problem is found.
+
+    EDIT["Edit"] --> TEST["Test"]
+    TEST --> RESULT{"Host-specific problem?"}
+    RESULT -->|"Yes"| EDIT
+    RESULT -->|"No"| REVIEW["Review"]
+```
+````
+
+`size` may be `compact`, `standard`, or `wide`; it defaults to `standard`. Each preset is a maximum: diagrams keep their natural Mermaid width when they are smaller and scale down responsively when they exceed the preset or viewport. Wide or naturally overfull diagrams receive a keyboard-accessible expanded view. Every diagram should include `accTitle` and `accDescr`, and its labels, shapes, grouping, and edge styles must communicate the structure without relying on color. Pixel widths are intentionally unsupported.
 
 Public assets belong in `site/public/` and are referenced from the site root, for example `/avatar.jpeg`.
 

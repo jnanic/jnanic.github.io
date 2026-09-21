@@ -18,19 +18,33 @@ export interface BlogPost {
 
 const postsDir = path.join(process.cwd(), 'content/blog');
 
+const mermaidSizes = ['compact', 'standard', 'wide'] as const;
+type MermaidSize = (typeof mermaidSizes)[number];
+
+function parseMermaidInfo(info: string): { size: MermaidSize; caption?: string } {
+  const sizeMatch = info.match(/\bsize=(compact|standard|wide)\b/i);
+  const captionMatch = info.match(/\bcaption=(?:"([^"]*)"|'([^']*)')/);
+
+  return {
+    size: (sizeMatch?.[1]?.toLowerCase() as MermaidSize | undefined) ?? 'standard',
+    caption: captionMatch?.[1] ?? captionMatch?.[2] ?? undefined,
+  };
+}
+
 // Custom renderer: emit a data-attribute placeholder for mermaid blocks so the
 // client-side MermaidRenderer component can hydrate them into real SVGs.
-// Supports optional width in the info string:  ```mermaid width=600
+// Fence metadata supports semantic size presets and a quoted visible caption.
 const renderer = new marked.Renderer();
 renderer.code = function ({ text, lang }: Tokens.Code): string {
   const infoLang = (lang ?? '').trim();
 
-  if (infoLang.startsWith('mermaid')) {
+  if (/^mermaid(?:\s|$)/i.test(infoLang)) {
+    const { size, caption } = parseMermaidInfo(infoLang);
     const encoded = Buffer.from(text).toString('base64');
-    // Parse optional  width=<number>  from the info string, e.g. "mermaid width=500"
-    const widthMatch = infoLang.match(/\bwidth=(\d+)\b/);
-    const widthAttr = widthMatch ? ` data-mermaid-width="${widthMatch[1]}"` : '';
-    return `<div data-mermaid="${encoded}"${widthAttr} aria-label="Mermaid diagram"></div>\n`;
+    const captionAttr = caption
+      ? ` data-mermaid-caption="${Buffer.from(caption).toString('base64')}"`
+      : '';
+    return `<div data-mermaid="${encoded}" data-mermaid-size="${size}"${captionAttr}></div>\n`;
   }
 
   // For all other fenced code blocks, produce the same HTML marked would by default.
