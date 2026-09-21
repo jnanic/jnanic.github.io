@@ -26,6 +26,7 @@ Application routes are:
 | --- | --- | --- |
 | `/` | `app/page.tsx` | Portfolio homepage |
 | `/blog/` | `app/blog/page.tsx` | Posts grouped by publication year |
+| `/blog/coming-next/` | `app/blog/coming-next/page.tsx` | Temporary, non-indexed status page for the next homelab installment |
 | `/blog/[slug]/` | `app/blog/[slug]/page.tsx` | Statically generated article |
 | `sitemap.xml` | `app/sitemap.ts` | Homepage, blog index, and published posts |
 | `robots.txt` | `app/robots.ts` | Allows crawling and links the sitemap |
@@ -62,10 +63,12 @@ main
 1. It reads `.md` and `.mdx` files from `content/blog/`.
 2. `gray-matter` parses the frontmatter.
 3. `marked` converts the Markdown body to HTML.
-4. A custom code-block renderer converts Mermaid fences into base64-backed placeholders.
+4. A custom code-block renderer converts Mermaid fences into base64-backed placeholders with semantic size and caption metadata.
 5. Posts are sorted newest first, and production lists omit posts with `draft: true`.
 
-`app/blog/[slug]/page.tsx` obtains every slug through `generateStaticParams`, adds article metadata and JSON-LD, and inserts the generated HTML into the article. `MermaidRendererWithTheme` observes the active theme and uses client-side portals to replace Mermaid placeholders with SVG diagrams.
+`app/blog/[slug]/page.tsx` obtains every slug through `generateStaticParams`, adds article metadata and JSON-LD, and inserts the generated HTML into the article. Its footer links back to the blog index and, when one exists, to the next chronological published post. Until Part 6 exists, Part 5 falls back to the non-indexed `/blog/coming-next/` status page; a real chronological post takes precedence automatically. `MermaidRendererWithTheme` observes the active theme and uses client-side portals to replace Mermaid placeholders with responsive figures.
+
+Mermaid `11.16.1` is pinned for deterministic layout. Figures use `compact`, `standard`, or `wide` maximum-size presets instead of author-supplied pixels. Inline diagrams retain their natural SVG width rather than being enlarged to fill a preset, then scale down responsively when necessary; unusually tall compact diagrams also receive a bounded inline height. The renderer uses theme-aware inline canvases at 50% background opacity, an opaque expanded canvas, and shared light and dark tokens for the documented `source`, `control`, `approved`, `denied`, and `decision` roles. Renderer-owned management panels are derived from source comments, fitted to the declared top-level rectangular nodes, included in the SVG view box, and drawn opaquely behind edges and nodes. Panel lookup accounts for Mermaid's diagram-prefixed node IDs; invalid panel membership produces a visible rendering error instead of silently omitting the boundary. This preserves true node-to-node connectors instead of relying on Mermaid's route-clipping compound subgraphs. The renderer preserves Mermaid's SVG accessibility metadata and displays the fence caption in a `figcaption`. Wide, naturally overfull, or height-constrained compact diagrams expose a native-dialog expanded view with contained scrolling; the inline figure remains viewport-clamped so it cannot create page-level horizontal overflow. Authoring syntax and accessibility requirements live in `README.md`.
 
 The supported `BlogPost` fields are defined by the interface in `lib/blog.ts`. `coverImage` is parsed for future presentation use but is not currently rendered by the index or article page.
 
@@ -79,7 +82,7 @@ Client-rendered functionality includes:
 - Responsive navigation state
 - Typing, project-card, cursor, and particle animation
 - Circuit-pattern seeding after hydration
-- Mermaid diagram hydration
+- Mermaid diagram hydration and optional expanded view
 - The custom 404 presentation
 
 Blog file access remains in server/build-time modules. Client components must not import `lib/blog.ts` because it depends on Node.js filesystem APIs.

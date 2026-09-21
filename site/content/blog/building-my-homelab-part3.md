@@ -91,8 +91,11 @@ The temporary recovery was straightforward: wait for the address to exist and re
 
 The permanent fix was more important.
 
-```mermaid width=600
+```mermaid size=compact caption="Docker startup before and after network readiness"
 flowchart LR
+    accTitle: Docker startup before and after network readiness
+    accDescr: Two parallel flows compare the failed startup, where Docker starts before the expected address exists, with the corrected startup, where Docker waits for usable network state and services return automatically.
+
     subgraph before["Before the fix"]
         direction TB
 
@@ -163,8 +166,11 @@ The functional behavior remained equivalent.
 
 That gave the repository a stronger role than “a collection of files that look similar to production.” It became the preferred desired-state source for the Docker projects.
 
-```mermaid
+```mermaid size=wide caption="Repository-to-deployment workflow"
 flowchart TB
+    accTitle: Repository-to-deployment workflow
+    accDescr: A repository workflow on the Mac moves a reviewed change through validation, merge, and pull, then the target VM confirms a backup, renders configuration, applies the deployment, and verifies the result.
+
     subgraph repository["Repository workflow - Mac"]
         direction LR
 
@@ -217,8 +223,11 @@ The most useful new service in Part 3 was not a storage pool. It was a synchroni
 
 I wanted notes and research material available on both my Mac and the homelab without placing the working directory in a public cloud drive. Syncthing became the transport layer, while Obsidian remained the editor on the Mac.
 
-```mermaid width=450
+```mermaid size=standard caption="Private research synchronization boundary"
 flowchart TB
+    accTitle: Private research synchronization boundary
+    accDescr: Obsidian writes to a local Mac research vault synchronized over a private overlay connection to a Linux vault, while n8n has narrow write access only to the automation inbox.
+
     subgraph mac["Mac"]
         direction TB
         OBSIDIAN["Obsidian"]

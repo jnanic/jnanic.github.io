@@ -30,7 +30,7 @@ Project records must satisfy the `Project` interface in `site/data/projects.ts`.
 
 Blog filenames define their slugs. Use ISO `YYYY-MM-DD` values for `publishedDate` and optional `updatedDate`, an explicit boolean `draft`, and a YAML list for `tags`. Place post media in `site/public/blog/` and reference it as `/blog/<filename>`.
 
-Use a fenced `mermaid` block for diagrams. Adding `width=600` to the fence's info string constrains diagram width. Keep diagram labels and surrounding prose understandable in both themes.
+Mermaid: use `size=compact|standard|wide` and a quoted `caption` in the fence metadata, plus `accTitle` and `accDescr` in the source. Make topology, labels, shapes, and edge styles carry the meaning without color; see `README.md` for the complete syntax.
 
 ## Validation notes
 

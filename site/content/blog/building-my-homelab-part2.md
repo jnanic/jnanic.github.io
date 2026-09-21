@@ -65,8 +65,11 @@ One design rule has become increasingly important:
 
 Proxmox runs virtualization, backups, UPS monitoring, and a small amount of host-level telemetry. General applications do not get installed directly on it.
 
-```mermaid width=500
+```mermaid size=compact caption="Workload separation under Proxmox"
 flowchart TB
+    accTitle: Workload separation under Proxmox
+    accDescr: Proxmox runs three separated workloads: an OMSCS development virtual machine, a Homepage container, and a Docker Services virtual machine.
+
     PVE["Proxmox VE"]
 
     PVE --> DEV["VM 100<br/>OMSCS Dev"]
@@ -96,8 +99,11 @@ No Proxmox or SSH management ports are forwarded through the router. Remote acce
 
 Power reliability is a real concern where this server runs, so an APC Back-UPS is connected directly to Proxmox. Network UPS Tools handles the shutdown path:
 
-```mermaid width=250
+```mermaid size=compact caption="Tested UPS shutdown sequence"
 flowchart TD
+    accTitle: Tested UPS shutdown sequence
+    accDescr: When utility power fails, the UPS switches to battery, Network UPS Tools detects battery operation, guests shut down cleanly, and Proxmox shuts down last.
+
     POWER["Utility power fails"]
     UPS["UPS switches to battery"]
     NUT["NUT on Proxmox<br/>detects battery operation"]
@@ -169,8 +175,11 @@ The future Git repository can contain deployment definitions. It will not contai
 
 The physical host has **32 GB RAM**, while the development VM alone can use up to 16 GB. I therefore avoided installing the entire application stack at once.
 
-```mermaid width=600
+```mermaid size=standard caption="Incremental application rollout order"
 flowchart LR
+    accTitle: Incremental application rollout order
+    accDescr: Applications were introduced one at a time in the order n8n, FreshRSS, Gramps Web, and Open WebUI so resource use could be measured between additions.
+
     N8N["n8n"]
     RSS["FreshRSS"]
     GRAMPS["Gramps Web"]
@@ -212,8 +221,11 @@ rate_limited
 
 Switching models produced a successful response and validated the complete path:
 
-```mermaid width=600
+```mermaid size=standard caption="Open WebUI request path"
 flowchart LR
+    accTitle: Open WebUI request path
+    accDescr: A browser request reaches Open WebUI, which sends it through OpenRouter to the selected language model provider.
+
     USER["Browser"]
     WEBUI["Open WebUI"]
     ROUTER["OpenRouter"]

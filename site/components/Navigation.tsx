@@ -1,6 +1,6 @@
  'use client';
 
- import React, { useEffect, useState } from 'react';
+ import React, { useEffect, useRef, useState } from 'react';
  import Link from 'next/link';
  import { usePathname } from 'next/navigation';
  import ThemeToggle from './ThemeToggle';
@@ -9,6 +9,7 @@
    const pathname = usePathname();
    const showThemeToggle = pathname === '/' || pathname.startsWith('/blog');
    const [isOpen, setIsOpen] = useState(false);
+   const scrollFrameRef = useRef<number>();
 
    useEffect(() => {
      const onKey = (e: KeyboardEvent) => {
@@ -25,6 +26,10 @@
      };
    }, [isOpen]);
 
+   useEffect(() => () => {
+     if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
+   }, []);
+
    const navItems = [
      { label: 'Home', href: '#hero' },
      { label: 'About', href: '#about' },
@@ -35,8 +40,14 @@
 
    const handleNavClick = (href: string) => {
      setIsOpen(false);
-     const el = document.querySelector(href);
-     if (el) el.scrollIntoView({ behavior: 'smooth' });
+     document.body.style.overflow = '';
+
+     if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
+     scrollFrameRef.current = requestAnimationFrame(() => {
+       const el = document.querySelector(href);
+       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+       if (el) el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+     });
    };
 
    return (
