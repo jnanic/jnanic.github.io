@@ -91,7 +91,7 @@ The temporary recovery was straightforward: wait for the address to exist and re
 
 The permanent fix was more important.
 
-```mermaid size=wide caption="Docker startup before and after network readiness"
+```mermaid size=compact caption="Docker startup before and after network readiness"
 flowchart LR
     accTitle: Docker startup before and after network readiness
     accDescr: Two parallel flows compare the failed startup, where Docker starts before the expected address exists, with the corrected startup, where Docker waits for usable network state and services return automatically.
@@ -166,8 +166,11 @@ The functional behavior remained equivalent.
 
 That gave the repository a stronger role than “a collection of files that look similar to production.” It became the preferred desired-state source for the Docker projects.
 
-```mermaid
+```mermaid size=wide caption="Repository-to-deployment workflow"
 flowchart TB
+    accTitle: Repository-to-deployment workflow
+    accDescr: A repository workflow on the Mac moves a reviewed change through validation, merge, and pull, then the target VM confirms a backup, renders configuration, applies the deployment, and verifies the result.
+
     subgraph repository["Repository workflow - Mac"]
         direction LR
 

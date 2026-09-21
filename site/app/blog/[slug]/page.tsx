@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAllPostSlugs, getPostBySlug } from '@/lib/blog';
+import { getAllPosts, getAllPostSlugs, getPostBySlug } from '@/lib/blog';
 import MermaidRendererWithTheme from '@/components/MermaidRendererWithTheme';
 
 interface Props {
@@ -39,6 +39,23 @@ export default function BlogPost({ params }: Props) {
   const post = getPostBySlug(params.slug);
   if (!post) notFound();
 
+  const posts = getAllPosts();
+  const postIndex = posts.findIndex((candidate) => candidate.slug === post.slug);
+  const nextPost = postIndex > 0 ? posts[postIndex - 1] : null;
+  const nextDestination = nextPost
+    ? {
+        href: `/blog/${nextPost.slug}/`,
+        title: nextPost.title,
+        ariaLabel: `Next post: ${nextPost.title}`,
+      }
+    : post.slug === 'building-my-homelab-part5'
+      ? {
+          href: '/blog/coming-next/',
+          title: 'Part 6 is still booting...',
+          ariaLabel: 'Part 6 status: still booting',
+        }
+      : null;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -51,7 +68,7 @@ export default function BlogPost({ params }: Props) {
   };
 
   return (
-    <main className="relative z-10 min-h-screen px-4 py-24 md:py-32">
+    <main className="relative z-10 min-h-screen px-4 pb-10 pt-24 md:pb-12 md:pt-32">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mx-auto max-w-3xl">
 
@@ -100,17 +117,32 @@ export default function BlogPost({ params }: Props) {
         <MermaidRendererWithTheme />
 
         {/* Post footer — surfaced after finishing the article */}
-        <footer className="mt-16 border-t border-brand-zaffre/35 pt-8 flex items-center justify-between gap-4 flex-wrap">
-          <Link
-            href="/blog/"
-            className="group inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-brand-zaffre"
-          >
-            <svg className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            More posts
-          </Link>
-          <span className="text-xs text-muted/50">// {post.tags.join(' · ')}</span>
+        <footer className="mt-12 border-t border-brand-zaffre/30 pt-5">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <Link
+              href="/blog/"
+              className="group inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-brand-zaffre"
+            >
+              <svg className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              More posts
+            </Link>
+
+            {nextDestination && (
+              <Link
+                href={nextDestination.href}
+                aria-label={nextDestination.ariaLabel}
+                className="group inline-flex max-w-full items-center justify-between gap-3 self-stretch text-left text-sm text-muted transition-colors hover:text-brand-zaffre focus-visible:text-brand-zaffre sm:self-auto sm:justify-end sm:text-right"
+              >
+                <span className="min-w-0">{nextDestination.title}</span>
+                <svg className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            )}
+          </div>
+
         </footer>
 
       </div>

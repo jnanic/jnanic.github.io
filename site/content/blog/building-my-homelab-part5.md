@@ -11,15 +11,6 @@ tags:
 - Linux
 ---
 
-<!--
-Draft checklist:
-- Replace the bracketed title and description.
-- Confirm the publication date and add or remove tags.
-- Keep draft: true while writing; change it to false only when the post is ready.
-- Put images in site/public/blog/ and reference them as /blog/<filename>.
-- Add updatedDate: "YYYY-MM-DD" only after revising an already published post.
--->
-
 Part 4 ended with Paperless-ngx running against storage provided by TrueNAS. The application worked, its database backup had survived an isolated restore test, and its startup gate could tell the intended NFS mount from an ordinary local directory.
 
 Building it also showed me how slow my development loop had become.
@@ -28,29 +19,28 @@ Many problems appeared only after code reached the Docker VM. A script could pas
 
 Each correction followed roughly the same route:
 
-```mermaid
-    flowchart LR
-    EDIT["Edit on Mac"] --> PUSH["Push branch<br/>to GitHub"]
-    PUSH --> FETCH["Fetch branch<br/>on Core"]
-    FETCH --> BUILD["Build isolated<br/>candidate"]
-    BUILD --> TEST["Run checks on<br/>the target"]
-    TEST --> RESULT{"Host-specific<br/>problem?"}
-    RESULT -->|"Yes"| EDIT
-    RESULT -->|"No"| REVIEW["Review and merge"]
+```mermaid size=compact caption="Original host-specific development loop"
+flowchart TB
+    accTitle: Original host-specific development loop
+    accDescr: The loop began with editing on the Mac, pushing to GitHub, fetching on Core, building an isolated candidate, and running checks. Host-specific problems returned the change for revision until it was ready for review and merge.
 
-    classDef action fill:#eaf2f8,stroke:#2c3e50,color:#1f2933;
-    classDef decision fill:#fff4cc,stroke:#8a6d1d,color:#332b12;
-    class EDIT,PUSH,FETCH,BUILD,TEST,REVIEW action;
+    EDIT["Edit on Mac"]
+    PUSH["Push branch<br/>to GitHub"]
+    FETCH["Fetch branch<br/>on Core"]
+    BUILD["Build isolated<br/>candidate"]
+    TEST["Run checks on<br/>the target"]
+    RESULT{"Host-specific<br/>problem?"}
+    REVIEW["Review and merge"]
+
+    EDIT --> PUSH --> FETCH --> BUILD --> TEST --> RESULT
+    RESULT -->|"No"| REVIEW
+    RESULT -. "Yes — revise" .-> EDIT
+
+    class EDIT source;
+    class PUSH,FETCH,BUILD,TEST control;
+    class REVIEW approved;
     class RESULT decision;
 ```
-
-1. Edit the code on my Mac.
-2. Commit and push a branch to GitHub.
-3. Fetch the branch on the target VM.
-4. Build an isolated candidate.
-5. Run the relevant checks.
-6. Find another host-specific problem.
-7. Repeat.
 
 The process protected production, but GitHub had become the transport for every unfinished experiment as well as the review boundary for finished work. I wanted a shorter feedback loop.
 
@@ -70,8 +60,11 @@ A confirmation prompt is a weak control if I do not understand the command befor
 
 My working rules became:
 
-```mermaid
+```mermaid size=standard caption="Human-controlled agent workflow"
 flowchart TB
+    accTitle: Human-controlled agent workflow
+    accDescr: An agent proposes a patch for human approval, an approved patch receives bounded integration testing, evidence returns for human review, and accepted changes move through main and a protected release workflow to production. The agent has no production credentials.
+
     AGENT["Agent investigates<br/>and proposes a change"]
     PATCH["Reviewable code or patch"]
     HUMAN{"I read and<br/>approve it"}
@@ -81,33 +74,21 @@ flowchart TB
     RELEASE["Protected release workflow"]
     PROD["Production"]
 
-    AGENT --> PATCH
-    PATCH --> HUMAN
-    HUMAN -->|"Needs revision"| AGENT
+    AGENT --> PATCH --> HUMAN
+    HUMAN -. "Needs revision" .-> AGENT
     HUMAN -->|"Approved for testing"| TEST
-    TEST --> EVIDENCE
-    EVIDENCE --> HUMAN
+    TEST --> EVIDENCE --> HUMAN
     HUMAN -->|"Accepted"| MAIN
-    MAIN --> RELEASE
-    RELEASE --> PROD
+    MAIN --> RELEASE --> PROD
 
-    AGENT -.-> NOACCESS["No production<br/>credentials"]
-    NOACCESS -.-> HUMAN
+    AGENT -. "No production credentials" .-> NOACCESS["Production access<br/>denied"]
 
-    classDef human fill:#fff4cc,stroke:#8a6d1d,color:#332b12;
-    classDef safe fill:#e8f5e9,stroke:#2e7d32,color:#173819;
-    classDef blocked fill:#fbe9e7,stroke:#b23c2e,color:#4b1d18;
-    class HUMAN human;
-    class TEST,EVIDENCE,MAIN,RELEASE,PROD safe;
-    class NOACCESS blocked;
+    class AGENT source;
+    class PATCH,TEST,EVIDENCE control;
+    class HUMAN decision;
+    class MAIN,RELEASE,PROD approved;
+    class NOACCESS denied;
 ```
-
-- An agent could investigate a problem and propose a change.
-- I would read the code before it was pushed or tested.
-- The change would be applied to a reviewable branch.
-- It would run in the narrowest practical test environment first.
-- I would inspect the evidence before moving to the next step.
-- Production would use reviewed code from the main branch.
 
 This approach took longer than letting an agent improvise directly on a live host. The extra time forced me to learn Ansible, systemd, Docker networking, SSH trust, Linux permissions, and the failure behavior of my own scripts.
 
@@ -135,6 +116,8 @@ I decided that development and automation needed their own home.
 
 I created a dedicated Debian VM named **Vishwakarma** to act as the management control plane.
 
+I named it [Vishwakarma](https://en.wikipedia.org/wiki/Vishvakarma), the craftsman deity and divine architect in Hindu tradition. The name fit a machine responsible for building, validating, and coordinating the rest of the lab.
+
 It started with two virtual CPUs, a small memory allocation, an NVMe-backed virtual disk, private network access, and no application workload. Its first responsibilities were remote development, repository validation, and Ansible orchestration.
 
 The design separated ordinary development from production authority.
@@ -149,47 +132,39 @@ I tested the boundary from both directions. The protected release path could aut
 
 The flow looked like this:
 
-```mermaid
+```mermaid size=standard caption="Development and production authority separation"
 flowchart TB
+    accTitle: Development and production authority separation
+    accDescr: Mac development reaches a management controller development workspace and a disposable integration guest, while reviewed GitHub main enters a separate protected release lane with production credentials and access to production hosts.
+%% panel MGMT "Vishwakarma management VM": DEV,RELEASE,DENIED
+
     MAC["Mac<br/>authoring and review"]
     GITHUB["GitHub<br/>reviewed main"]
-
-    subgraph MGMT["Vishwakarma management VM"]
-        DEV["Development workspace<br/>editable branches<br/>integration identity"]
-        RELEASE["Protected release lane<br/>production inventory<br/>production identity"]
-        DENIED["Production credentials<br/>unavailable to development"]
-    end
-
+    DEV["Development workspace<br/>editable branches<br/>integration identity"]
+    RELEASE["Protected release lane<br/>production inventory<br/>production identity"]
+    DENIED["Production credentials<br/>unavailable to development"]
     INTEGRATION["Disposable integration guest<br/>no production secrets or data"]
     PRODUCTION["Production hosts"]
+    OUTPUT_ROW(( ))
 
     MAC --> DEV
-    DEV --> INTEGRATION
-    DEV -.-> DENIED
     GITHUB --> RELEASE
+    DEV --> INTEGRATION
     RELEASE --> PRODUCTION
+    DEV -. "Denied" .-> DENIED
+    DEV ~~~ OUTPUT_ROW
+    RELEASE ~~~ OUTPUT_ROW
+    OUTPUT_ROW ~~~ INTEGRATION
+    OUTPUT_ROW ~~~ PRODUCTION
 
-    classDef dev fill:#eaf2f8,stroke:#315b7d,color:#172d3d;
-    classDef protected fill:#e8f5e9,stroke:#2e7d32,color:#173819;
-    classDef denied fill:#fbe9e7,stroke:#b23c2e,color:#4b1d18;
-    class DEV,INTEGRATION dev;
-    class RELEASE,PRODUCTION protected;
+    class MAC,GITHUB source;
+    class DEV,INTEGRATION control;
+    class RELEASE,PRODUCTION approved;
     class DENIED denied;
+    class OUTPUT_ROW layout;
 ```
 
-```text
-Mac
- │
- │ edit, review, and transfer
- ▼
-Vishwakarma
- ├── Development workspace ──► Integration guest
- │
- └── Protected release lane ──► Production hosts
-              reviewed main only
-```
-
-Vishwakarma controlled deployments, but applications did not depend on it to remain online. If the management VM stopped, the services it had deployed would continue running. I also retained direct Proxmox access as a recovery path if Vishwakarma itself became unreachable.
+Vishwakarma controlled deployments, but applications did not depend on it to remain online. If the management VM stopped, the services it had deployed would continue running. I also retained direct Proxmox access as a recovery path if the management VM itself became unreachable.
 
 ## Creating a disposable integration environment
 
@@ -199,7 +174,7 @@ A minimal Debian template could produce a linked clone for a bounded test. The c
 
 Before attempting a full application deployment, I tested the workflow with smaller pilots.
 
-The first pilot performed read-only discovery through Ansible. It confirmed that Vishwakarma could reach the guest, collect the intended facts, and stop without changing the target.
+The first pilot performed read-only discovery through Ansible. It confirmed that the management VM could reach the guest, collect the intended facts, and stop without changing the target.
 
 The second pilot made a bounded change. Running it again reported no further changes, which showed that the operation was idempotent.
 
@@ -213,9 +188,27 @@ They also tested the human side of the workflow. An agent might draft an Ansible
 
 That loop was slower than autonomous trial and error. It also meant that I knew what had changed on the host and why.
 
+```mermaid size=compact caption="Integration pilot evidence pipeline"
+flowchart TB
+    accTitle: Integration pilot evidence pipeline
+    accDescr: Four integration pilots produced evidence in sequence: read-only discovery collected the intended facts without changing the target; a bounded change reported no further changes on its second run; a deliberate failure stopped within its boundary and retained diagnostic state; and exact cleanup checked the target identity while leaving unrelated guests in place.
+
+    DISCOVERY["Read-only discovery<br/>Intended facts collected<br/>Target unchanged"]
+    CHANGE["Bounded change<br/>Second run: no further changes"]
+    FAILURE["Deliberate failure<br/>Stopped within its boundary<br/>Diagnostic state retained"]
+    CLEANUP["Exact cleanup<br/>Target identity checked<br/>Unrelated guests remain"]
+
+    DISCOVERY --> CHANGE --> FAILURE --> CLEANUP
+
+    class DISCOVERY source;
+    class CHANGE control;
+    class FAILURE denied;
+    class CLEANUP approved;
+```
+
 ## What the first environment could do
 
-By the end of the pilots, Vishwakarma could:
+By the end of the pilots, the management VM could:
 
 - rebuild its development tools from pinned requirements;
 - keep development and production credentials separate;

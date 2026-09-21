@@ -33,8 +33,11 @@ I could have kept the disk under Proxmox and shared directories from the host. I
 
 That boundary matters because two systems should never believe they own the same filesystem.
 
-```mermaid
+```mermaid size=standard caption="Storage ownership and access boundaries"
 flowchart TB
+    accTitle: Storage ownership and access boundaries
+    accDescr: Proxmox owns NVMe virtual machine storage and runs TrueNAS. TrueNAS exclusively owns the single-disk ZFS pool, serves authenticated SMB to operator devices and restricted NFS to applications, while snapshots remain on the pool and independent backups protect selected data.
+
     PVE["Proxmox host"] -->|"owns"| NVME["NVMe VM storage"]
     PVE -->|"runs"| TN["TrueNAS VM"]
     TN -->|"exclusive filesystem ownership"| ZFS["Single-disk ZFS pool"]
@@ -79,8 +82,11 @@ A dataset is a policy boundary. It can have its own encryption behavior, snapsho
 
 The resulting layout separates four kinds of responsibility:
 
-```mermaid
+```mermaid size=wide caption="ZFS dataset policy boundaries"
 flowchart TB
+    accTitle: ZFS dataset policy boundaries
+    accDescr: The ZFS pool separates photos, documents, application exports, future media, and migration space. Photo and document datasets further separate operator-managed files from application-managed data and use different unlock policies.
+
     ROOT["ZFS pool"]
 
     ROOT --> PHOTOS["Photos dataset<br/>automatic unlock"]
@@ -126,8 +132,11 @@ I deliberately left out Tika and Gotenberg. Paperless is an archive for scans, P
 
 The unusual part is how Paperless starts.
 
-```mermaid
+```mermaid size=standard caption="Paperless storage-gated startup"
 flowchart TB
+    accTitle: Paperless storage-gated startup
+    accDescr: After documents are unlocked and Paperless startup is requested, a storage gate checks NFS mounts, service identity, write access, and protected inputs. Passing starts Paperless and Valkey; failure refuses startup.
+
     UNLOCK["Operator unlocks documents"] --> START["Operator starts Paperless"]
     START --> GATE["Storage gate"]
 
