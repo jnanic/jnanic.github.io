@@ -2,7 +2,7 @@
 title: "Building My Proxmox Homelab, Part 5: A Safe Place to Break Things"
 description: "How I built a management and integration environment for testing infrastructure changes while keeping a human responsible for what ran."
 publishedDate: "2026-09-21"
-draft: true
+draft: false
 tags:
 - Homelab
 - Proxmox
