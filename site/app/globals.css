@@ -214,6 +214,11 @@
   padding: clamp(0.875rem, 2.5vw, 1.5rem);
 }
 
+.mermaid-viewport--scrollable {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
 .mermaid-figure--semantic .mermaid-viewport {
   border-radius: 0.75rem;
   background: color-mix(in srgb, var(--mermaid-canvas) 50%, transparent);
@@ -287,6 +292,17 @@
   fill: var(--mermaid-control-text) !important;
 }
 
+.mermaid-figure--semantic .node.process > .label-container {
+  fill: var(--mermaid-control-fill) !important;
+  stroke: var(--mermaid-control-border) !important;
+}
+
+.mermaid-figure--semantic .node.process .nodeLabel,
+.mermaid-figure--semantic .node.process .nodeLabel p {
+  color: var(--mermaid-control-text) !important;
+  fill: var(--mermaid-control-text) !important;
+}
+
 .mermaid-figure--semantic .node.source > .label-container {
   fill: var(--mermaid-source-fill) !important;
   stroke: var(--mermaid-source-border) !important;
@@ -298,8 +314,29 @@
   fill: var(--mermaid-source-text) !important;
 }
 
+.mermaid-figure--semantic .node.evidence > .label-container {
+  fill: var(--mermaid-evidence-fill) !important;
+  stroke: var(--mermaid-evidence-border) !important;
+}
+
+.mermaid-figure--semantic .node.evidence .nodeLabel,
+.mermaid-figure--semantic .node.evidence .nodeLabel p {
+  color: var(--mermaid-evidence-text) !important;
+  fill: var(--mermaid-evidence-text) !important;
+}
+
 .mermaid-figure--semantic .node.approved > .label-container {
   fill: var(--mermaid-approved-fill) !important;
+  stroke: var(--mermaid-approved-border) !important;
+}
+
+.mermaid-figure--semantic .node.approved > g.label-container > path:first-of-type {
+  fill: var(--mermaid-approved-fill) !important;
+  stroke: none !important;
+}
+
+.mermaid-figure--semantic .node.approved > g.label-container > path:last-of-type {
+  fill: none !important;
   stroke: var(--mermaid-approved-border) !important;
 }
 
@@ -320,6 +357,17 @@
   fill: var(--mermaid-denied-text) !important;
 }
 
+.mermaid-figure--semantic .node.failure > .label-container {
+  fill: var(--mermaid-denied-fill) !important;
+  stroke: var(--mermaid-denied-border) !important;
+}
+
+.mermaid-figure--semantic .node.failure .nodeLabel,
+.mermaid-figure--semantic .node.failure .nodeLabel p {
+  color: var(--mermaid-denied-text) !important;
+  fill: var(--mermaid-denied-text) !important;
+}
+
 .mermaid-figure--semantic .node.decision > .label-container {
   fill: var(--mermaid-decision-fill) !important;
   stroke: var(--mermaid-decision-border) !important;
@@ -327,6 +375,20 @@
 
 .mermaid-figure--semantic .node.decision .nodeLabel,
 .mermaid-figure--semantic .node.decision .nodeLabel p {
+  color: var(--mermaid-decision-text) !important;
+  fill: var(--mermaid-decision-text) !important;
+}
+
+.mermaid-figure--semantic .node.human > .label-container,
+.mermaid-figure--semantic .node.warning > .label-container {
+  fill: var(--mermaid-decision-fill) !important;
+  stroke: var(--mermaid-decision-border) !important;
+}
+
+.mermaid-figure--semantic .node.human .nodeLabel,
+.mermaid-figure--semantic .node.human .nodeLabel p,
+.mermaid-figure--semantic .node.warning .nodeLabel,
+.mermaid-figure--semantic .node.warning .nodeLabel p {
   color: var(--mermaid-decision-text) !important;
   fill: var(--mermaid-decision-text) !important;
 }

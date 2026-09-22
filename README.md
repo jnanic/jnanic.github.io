@@ -58,26 +58,52 @@ Production builds exclude drafts from the blog index and sitemap.
 Mermaid fences accept a semantic size and a quoted visible caption:
 
 ````markdown
-```mermaid size=compact caption="Old development loop"
+```mermaid size=compact caption="Reviewed release flow"
 flowchart TB
-    accTitle: Old development loop
-    accDescr: A change moves through editing, testing, and review, returning to editing when a host-specific problem is found.
+    accTitle: Reviewed release flow
+    accDescr: A reviewed commit is tested, produces evidence, and reaches a human approval gate. Acceptance opens the protected release lane; rejection leaves the release blocked.
 
-    EDIT["Edit"] --> TEST["Test"]
-    TEST --> RESULT{"Host-specific problem?"}
-    RESULT -->|"Yes"| EDIT
-    RESULT -->|"No"| REVIEW["Review"]
+    COMMIT("Reviewed commit")
+    TEST["Run checks"]
+    EVIDENCE[["Test evidence"]]
+    REVIEW{"Evidence accepted?"}
+    RELEASE["Protected release lane"]
+    DONE(["Deployment accepted"])
+    BLOCKED{{"Release remains blocked"}}
 
-    class EDIT source;
-    class TEST control;
-    class RESULT decision;
-    class REVIEW approved;
+    COMMIT --> TEST --> EVIDENCE --> REVIEW
+    REVIEW -->|"Yes"| RELEASE --> DONE
+    REVIEW -->|"No"| BLOCKED
+
+    class COMMIT source;
+    class TEST process;
+    class EVIDENCE evidence;
+    class REVIEW human;
+    class RELEASE,DONE approved;
+    class BLOCKED failure;
 ```
 ````
 
-`size` may be `compact`, `standard`, or `wide`; it defaults to `standard`. Each preset is a maximum: diagrams keep their natural Mermaid width when they are smaller and scale down responsively when they exceed the preset or viewport. Unusually tall compact diagrams are also scaled to a bounded inline height, with their full-size version available through the keyboard-accessible expanded view. Wide or naturally overfull diagrams receive the same expanded view. Every diagram should include `accTitle` and `accDescr`, and its labels, shapes, grouping, and edge styles must communicate the structure without relying on color. Pixel widths are intentionally unsupported.
+`size` may be `compact`, `standard`, or `wide`; it defaults to `standard`. Each preset is a maximum: diagrams keep their natural Mermaid width when they are smaller and scale down responsively when they exceed the preset or viewport. Unusually tall compact diagrams are also scaled to a bounded inline height, with their full-size version available through the keyboard-accessible expanded view. Wide semantic diagrams stop shrinking when their 15px labels would fall below 11px and use contained horizontal scrolling instead; wide or naturally overfull diagrams also receive the expanded view. Every diagram should include `accTitle` and `accDescr`, and its labels, shapes, grouping, and edge styles must communicate the structure without relying on color. Pixel widths are intentionally unsupported.
 
-Architecture diagrams can assign the shared semantic node roles `source`, `control`, `approved`, `denied`, and `decision` with Mermaid `class` statements. A native control-plane cluster may use `management` when no links cross its boundary; layout-only nodes or subgraphs use `layout` to participate in alignment without becoming visible content. The renderer owns their accessible light and dark palettes, typography, borders, and shapes; posts should not repeat palette values in `classDef` declarations. Use a dashed, explicitly labeled connector for a denied or blocked path so color is never the only signal. Mermaid is pinned to `11.16.1` so layout changes arrive only through an intentional dependency update.
+#### Semantic shape and class contract
+
+New or revised technical diagrams use this shared contract. Shape and label carry the primary meaning; the renderer supplies the accessible light and dark colors.
+
+| Meaning | Mermaid form | Class |
+| --- | --- | --- |
+| Source or immutable input | `("Text")` | `source` |
+| Process or action | `["Text"]` | `process` |
+| Human decision or approval gate | `{"Text"}` | `human` |
+| Failure or blocked state | `{{"Text"}}` | `failure` |
+| Warning or open gap | `{{"Text"}}` | `warning` |
+| Successful or accepted outcome | `(["Text"])` | `approved` |
+| Evidence or generated artifact | `[["Text"]]` | `evidence` |
+| Protected process or lane | `["Text"]` | `approved` |
+
+The shared theme renders sources and evidence in blue, ordinary processes in gray with a blue border, human gates and unresolved warnings in amber, failures and blocked states in red, and protected lanes or verified outcomes in green. Diamonds must ask real questions and use labeled branches when more than one outcome exists. Hexagons identify abnormal states, stadiums identify completed outcomes, rectangles contain work, and double rectangles contain evidence. Meaning must remain clear in monochrome.
+
+The renderer is the color source of truth. Blog Markdown must not contain diagram-local `init`, `classDef`, hard-coded `fill`, or hard-coded `stroke` declarations. Existing legacy roles remain supported for older posts, but new work should use the contract above. A native control-plane cluster may use `management` when no links cross its boundary; layout-only nodes or subgraphs use `layout` to participate in alignment without becoming visible content. Mermaid is pinned to `11.16.1` so layout changes arrive only through an intentional dependency update.
 
 When arrows must cross a management boundary, do not place their endpoint nodes inside a Mermaid subgraph: Mermaid clips those routes at the subgraph edge. Keep the nodes in the main flow and declare a renderer-owned visual panel in a Mermaid comment instead:
 
@@ -85,7 +111,7 @@ When arrows must cross a management boundary, do not place their endpoint nodes 
 %% panel MGMT "Management VM": DEV,RELEASE,DENIED
 ```
 
-The listed node IDs determine the panel bounds while the underlying links remain true node-to-node connections.
+The listed node IDs determine the panel bounds while the underlying links remain true node-to-node connections. Panels support the rectangular, polygonal, and stadium shapes in the semantic contract. Use this mechanism when grouped nodes have incoming or outgoing links: Mermaid ignores a subgraph's requested direction when its nodes connect outside that subgraph, which can collapse parallel lanes into a single tall column.
 
 Public assets belong in `site/public/` and are referenced from the site root, for example `/avatar.jpeg`.
 
