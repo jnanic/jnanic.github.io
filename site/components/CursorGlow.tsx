@@ -22,7 +22,7 @@ export default function CursorGlow() {
   const smoothX = useSpring(mouseX, { damping: 25, stiffness: 300, mass: 0.6 });
   const smoothY = useSpring(mouseY, { damping: 25, stiffness: 300, mass: 0.6 });
 
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number>(undefined);
 
   useEffect(() => {
     setMounted(true);

@@ -5,7 +5,7 @@ import { getAllPosts, getAllPostSlugs, getPostBySlug } from '@/lib/blog';
 import MermaidRendererWithTheme from '@/components/MermaidRendererWithTheme';
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export const dynamicParams = false;
@@ -14,7 +14,8 @@ export async function generateStaticParams() {
   return getAllPostSlugs().map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }: Props): Metadata {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const post = getPostBySlug(params.slug);
   if (!post) return {};
   return {
@@ -35,7 +36,8 @@ function formatDate(d: Date) {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-export default function BlogPost({ params }: Props) {
+export default async function BlogPost(props: Props) {
+  const params = await props.params;
   const post = getPostBySlug(params.slug);
   if (!post) notFound();
 

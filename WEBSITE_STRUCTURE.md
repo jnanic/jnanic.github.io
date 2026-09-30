@@ -2,7 +2,7 @@
 
 ## Runtime model
 
-This repository contains a Next.js 14 App Router application in `site/`. Production uses `output: 'export'`, so every route is generated as static files for GitHub Pages. There is no production Node.js server, database, API route, or request-time rendering layer.
+This repository contains a Next.js 16 App Router application in `site/`. Production uses `output: 'export'`, so every route is generated as static files for GitHub Pages. There is no production Node.js server, database, API route, or request-time rendering layer.
 
 The main technologies are TypeScript, React, Tailwind CSS, Framer Motion, `gray-matter`, `marked`, and Mermaid. Exact versions live in `site/package.json` and `site/package-lock.json`.
 
@@ -13,9 +13,10 @@ The main technologies are TypeScript, React, Tailwind CSS, Framer Motion, `gray-
 ```text
 RootLayout
 └── ThemeProvider
-    ├── CircuitBackground
-    ├── GlobalParticles
-    ├── CursorGlow
+    ├── ClientVisualLayers
+    │   ├── CircuitBackground
+    │   ├── GlobalParticles
+    │   └── CursorGlow
     ├── Navigation
     └── route content
 ```

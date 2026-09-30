@@ -2,11 +2,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import dynamic from 'next/dynamic';
+import ClientVisualLayers from '@/components/ClientVisualLayers';
 import Navigation from '@/components/Navigation';
-const CursorGlow = dynamic(() => import('@/components/CursorGlow'), { ssr: false, loading: () => null });
-const GlobalParticles = dynamic(() => import('@/components/GlobalParticles'), { ssr: false, loading: () => null });
-const CircuitBackground = dynamic(() => import('@/components/CircuitBackground'), { ssr: false, loading: () => null });
 
 const inter = Inter({
   subsets: ['latin'],
@@ -69,9 +66,7 @@ export default function RootLayout({
       </head>
       <body className={inter.variable}>
         <ThemeProvider>
-          <CircuitBackground />
-          <GlobalParticles />
-          <CursorGlow />
+          <ClientVisualLayers />
           <Navigation />
           {children}
         </ThemeProvider>

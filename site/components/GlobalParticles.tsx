@@ -28,7 +28,7 @@ export default function GlobalParticles() {
   const smoothMouseX = useSpring(mouseX, { damping: 30, stiffness: 200 });
   const smoothMouseY = useSpring(mouseY, { damping: 30, stiffness: 200 });
   
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number>(undefined);
 
   useEffect(() => {
     setMounted(true);
