@@ -16,6 +16,7 @@ interface Props {
 const diagramFont = "var(--font-inter), Inter, ui-sans-serif, system-ui, sans-serif";
 const compactMaxRenderedHeight = 720;
 const compactMaxAspectRatio = 1.5;
+const minimumSemanticLabelScale = 11 / 15;
 
 const sharedThemeVariables = {
   fontFamily: diagramFont,
@@ -32,6 +33,9 @@ const diagramPalettes = {
     sourceFill: '#e5f3ff',
     sourceBorder: '#397fbe',
     sourceText: '#0c61a5',
+    evidenceFill: '#eaf1f8',
+    evidenceBorder: '#668db3',
+    evidenceText: '#244664',
     approvedFill: '#edf7ef',
     approvedBorder: '#2f7d3b',
     approvedText: '#153b20',
@@ -58,6 +62,9 @@ const diagramPalettes = {
     sourceFill: '#001f36',
     sourceBorder: '#234b68',
     sourceText: '#62b9f5',
+    evidenceFill: '#303844',
+    evidenceBorder: '#668db3',
+    evidenceText: '#f5f7fa',
     approvedFill: '#343936',
     approvedBorder: '#2f8f3d',
     approvedText: '#f4f4f5',
@@ -152,6 +159,11 @@ const sharedThemeCss = `
 
 const semanticRoleSelector = [
   '.node.source',
+  '.node.process',
+  '.node.human',
+  '.node.failure',
+  '.node.warning',
+  '.node.evidence',
   '.node.control',
   '.node.approved',
   '.node.denied',
@@ -183,13 +195,56 @@ function getTranslation(element: Element) {
 
 function getNodeBounds(node: SVGGElement): MermaidBounds | null {
   const translation = getTranslation(node);
-  const rect = node.querySelector<SVGRectElement>('rect.label-container');
-  if (!rect) return null;
+  const shape = node.querySelector<SVGGraphicsElement>('.label-container');
+  if (!shape) return null;
 
-  const x = translation.x + Number(rect.getAttribute('x') ?? 0);
-  const y = translation.y + Number(rect.getAttribute('y') ?? 0);
-  const width = Number(rect.getAttribute('width') ?? 0);
-  const height = Number(rect.getAttribute('height') ?? 0);
+  const boundsFromCoordinates = (coordinates: number[]): MermaidBounds | null => {
+    if (coordinates.length < 4 || coordinates.length % 2 !== 0) return null;
+
+    const xValues = coordinates.filter((_, index) => index % 2 === 0);
+    const yValues = coordinates.filter((_, index) => index % 2 === 1);
+    const left = Math.min(...xValues);
+    const top = Math.min(...yValues);
+    return {
+      x: left,
+      y: top,
+      width: Math.max(...xValues) - left,
+      height: Math.max(...yValues) - top,
+    };
+  };
+
+  let localBounds: MermaidBounds | null = null;
+  if (shape.tagName.toLowerCase() === 'rect') {
+    localBounds = {
+      x: Number(shape.getAttribute('x') ?? 0),
+      y: Number(shape.getAttribute('y') ?? 0),
+      width: Number(shape.getAttribute('width') ?? 0),
+      height: Number(shape.getAttribute('height') ?? 0),
+    };
+  } else if (shape.tagName.toLowerCase() === 'polygon') {
+    const coordinates = (shape.getAttribute('points')?.match(/-?(?:\d+(?:\.\d+)?|\.\d+)/g) ?? [])
+      .map(Number);
+    localBounds = boundsFromCoordinates(coordinates);
+  } else if (shape.tagName.toLowerCase() === 'g') {
+    const pathBounds = Array.from(shape.querySelectorAll<SVGPathElement>('path'))
+      .map((path) => boundsFromCoordinates(
+        (path.getAttribute('d')?.match(/-?(?:\d+(?:\.\d+)?|\.\d+)/g) ?? []).map(Number),
+      ))
+      .filter((bounds): bounds is MermaidBounds => Boolean(bounds));
+    if (pathBounds.length) {
+      const left = Math.min(...pathBounds.map((bounds) => bounds.x));
+      const top = Math.min(...pathBounds.map((bounds) => bounds.y));
+      const right = Math.max(...pathBounds.map((bounds) => bounds.x + bounds.width));
+      const bottom = Math.max(...pathBounds.map((bounds) => bounds.y + bounds.height));
+      localBounds = { x: left, y: top, width: right - left, height: bottom - top };
+    }
+  }
+  if (!localBounds) return null;
+
+  const shapeTranslation = getTranslation(shape);
+  const x = translation.x + shapeTranslation.x + localBounds.x;
+  const y = translation.y + shapeTranslation.y + localBounds.y;
+  const { width, height } = localBounds;
   if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) return null;
 
   return { x, y, width, height };
@@ -247,7 +302,7 @@ function addSyntheticManagementPanels(svgElement: SVGSVGElement, source: string)
     memberNodes.forEach((node) => node.setAttribute('data-management-panel', panelId));
     const bounds = memberNodes.map(getNodeBounds);
     if (bounds.some((box) => !box)) {
-      throw new Error(`Management panel "${panelLabel}" requires rectangular nodes with valid bounds.`);
+      throw new Error(`Management panel "${panelLabel}" requires supported nodes with valid bounds.`);
     }
 
     const memberBounds = bounds as MermaidBounds[];
@@ -473,7 +528,14 @@ export default function MermaidDiagram({ source, theme, size, caption }: Props) 
   const inlineScale = isCompactHeightConstrained
     ? compactHeightLimit / unconstrainedInlineHeight
     : 1;
-  const inlineDiagramWidth = unconstrainedInlineWidth * inlineScale;
+  const minimumLegibleInlineWidth = size === 'wide' && hasSemanticRoles
+    ? naturalWidth * minimumSemanticLabelScale
+    : 0;
+  const inlineDiagramWidth = Math.min(
+    naturalWidth,
+    Math.max(unconstrainedInlineWidth * inlineScale, minimumLegibleInlineWidth),
+  );
+  const hasScrollableInlineOverflow = inlineDiagramWidth > availableInlineWidth + 1;
 
   const canExpand = Boolean(renderedSvg)
     && (size === 'wide' || isOverfull || isCompactHeightConstrained);
@@ -498,6 +560,9 @@ export default function MermaidDiagram({ source, theme, size, caption }: Props) 
     '--mermaid-source-fill': palette.sourceFill,
     '--mermaid-source-border': palette.sourceBorder,
     '--mermaid-source-text': palette.sourceText,
+    '--mermaid-evidence-fill': palette.evidenceFill,
+    '--mermaid-evidence-border': palette.evidenceBorder,
+    '--mermaid-evidence-text': palette.evidenceText,
     '--mermaid-approved-fill': palette.approvedFill,
     '--mermaid-approved-border': palette.approvedBorder,
     '--mermaid-approved-text': palette.approvedText,
@@ -524,7 +589,7 @@ export default function MermaidDiagram({ source, theme, size, caption }: Props) 
     >
       <div
         ref={inlineViewportRef}
-        className="mermaid-viewport"
+        className={`mermaid-viewport${hasScrollableInlineOverflow ? ' mermaid-viewport--scrollable' : ''}`}
         style={isExpanded && inlineHeight ? { minHeight: `${inlineHeight}px` } : undefined}
       >
         {!error && renderedSvg && !isExpanded && (
