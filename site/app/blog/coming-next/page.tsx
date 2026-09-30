@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Part 6 Is Still Booting – Yash Sharma',
+  title: 'Part 7 Is Still Booting – Yash Sharma',
   description: 'The next homelab post is in progress and waiting for quieter logs.',
   robots: {
     index: false,
@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 };
 
 const bootSteps = [
-  { status: 'OK', text: 'Broke the test environment safely', pending: false },
-  { status: 'OK', text: 'Learned why it broke', pending: false },
-  { status: '....', text: 'Turning the logs into a coherent story', pending: true },
+  { status: 'OK', text: 'Kept the agents inside the guardrails', pending: false },
+  { status: 'OK', text: 'Recorded the decisions worth remembering', pending: false },
+  { status: '....', text: 'Turning the checkpoints into a coherent story', pending: true },
 ];
 
 export default function ComingNext() {
@@ -31,15 +31,15 @@ export default function ComingNext() {
         <section className="mx-auto max-w-2xl py-8 text-center md:py-14">
           <p className="mb-5 font-mono text-sm text-brand-zaffre">// next transmission</p>
           <h1 className="mb-6 text-4xl font-bold leading-tight md:text-6xl">
-            Part 6 is still booting...
+            Part 7 is still booting...
           </h1>
           <p className="mx-auto max-w-xl text-lg leading-relaxed text-muted md:text-xl">
-            Part 6 is in progress and will be online when the logs become less interesting.
+            Part 7 is in progress and will be online when the logs become less interesting.
           </p>
 
           <div
             role="group"
-            aria-label="Part 6 writing progress"
+            aria-label="Part 7 writing progress"
             className="mx-auto mt-10 max-w-xl rounded-xl border border-brand-zaffre/25 bg-[var(--color-bg)]/75 p-5 text-left font-mono text-sm backdrop-blur-sm md:p-6"
           >
             {bootSteps.map((step) => (
@@ -59,13 +59,13 @@ export default function ComingNext() {
 
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-brand-zaffre/30 pt-5 text-sm text-muted">
           <Link
-            href="/blog/building-my-homelab-part5/"
+            href="/blog/building-my-homelab-part6/"
             className="group inline-flex items-center gap-2 transition-colors hover:text-brand-zaffre"
           >
             <svg className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Part 5
+            Back to Part 6
           </Link>
           <Link href="/blog/" className="transition-colors hover:text-brand-zaffre">
             More posts

@@ -50,11 +50,11 @@ export default async function BlogPost(props: Props) {
         title: nextPost.title,
         ariaLabel: `Next post: ${nextPost.title}`,
       }
-    : post.slug === 'building-my-homelab-part5'
+    : post.slug === 'building-my-homelab-part6'
       ? {
           href: '/blog/coming-next/',
-          title: 'Part 6 is still booting...',
-          ariaLabel: 'Part 6 status: still booting',
+          title: 'Part 7 is still booting...',
+          ariaLabel: 'Part 7 status: still booting',
         }
       : null;
 
