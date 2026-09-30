@@ -9,7 +9,7 @@
    const pathname = usePathname();
    const showThemeToggle = pathname === '/' || pathname.startsWith('/blog');
    const [isOpen, setIsOpen] = useState(false);
-   const scrollFrameRef = useRef<number>();
+   const scrollFrameRef = useRef<number>(undefined);
 
    useEffect(() => {
      const onKey = (e: KeyboardEvent) => {
