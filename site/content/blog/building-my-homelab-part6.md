@@ -1,7 +1,7 @@
 ---
 title: "Building My Proxmox Homelab, Part 6: The Integration Host That Stayed"
 description: "How a failed disposable-VM workflow led to a persistent integration host and the first complete application lifecycle through production."
-publishedDate: "2026-09-22"
+publishedDate: "2026-09-30"
 draft: false
 tags:
 - Homelab
@@ -13,13 +13,11 @@ tags:
 - Automation
 ---
 
-<img src="/blog/distractedmanpart6.jpg" alt="2 buttons meme" width="450" style="max-width:100%">
+<img src="/blog/distractedmanpart6.jpg" alt="Distracted boyfriend meme: the management controller turns from a disposable guest for every workload toward a persistent integration host" width="450" style="max-width:100%">
 
 [Part 5](/blog/building-my-homelab-part5/) ended with a disposable integration guest that could survive a deliberate failure, recover, and disappear without touching production. The isolation worked. I still did not know whether the process could handle a real application.
 
 I chose [Homelable](https://github.com/Pouzor/homelable), a self-hosted network documentation application, for the first complete test. It was small enough for me to understand, but substantial enough to require a frontend, backend, persistent state, authentication, firewall policy, backup, and recovery.
-
-The first attempt never started the application.
 
 ## The application that never started
 
@@ -94,7 +92,7 @@ Production never received that integration tree. After human review, the protect
 
 The application test covered more than container health. It followed the revision from source intake through functional testing, backup, restore, recreation, and finally an independent production deployment.
 
-```mermaid size=standard caption="Homelable evidence pipeline"
+```mermaid size=compact caption="Homelable evidence pipeline"
 flowchart TB
     accTitle: Homelable evidence pipeline
     accDescr: A reviewed commit passes through protected integration staging, behavior tests, recovery tests, and pinned-version recreation. A human reviews the evidence. The protected production lane independently consumes the same reviewed commit only after the evidence is accepted.
@@ -133,17 +131,15 @@ The corrected auditor compared the effective mount and accepted Docker’s canon
 
 ## Testing behavior and recovery
 
-Container health alone was insufficient. I wanted evidence for four claims: approved users could use the application while denied sources could not, state survived expected changes, a backup could restore without touching the active service, and recovery removed only the resources it created.
+I tested authentication, network access, state persistence, and recovery separately. The diagram below records the checks and their outcomes. Repeating the apply, restart, and acceptance workflows made no changes.
 
-The functional tests rejected invalid and default credentials, allowed the approved login, and confirmed that the Management source could not reach the application port. I created, read, and changed a sanitized object, restarted Compose, and confirmed that the object survived. After removing it, the application returned to its expected empty state. Repeating the apply, restart, and acceptance workflows made no changes.
-
-The recovery test stopped the application in a controlled order, captured the recovery set, restarted the active deployment, and created an isolated restore. The restored copy used separate filesystem paths, private Docker networks, and no published host port. It exposed the expected fixture without sharing writable state with the active application.
+The backup test stopped the application in a controlled order, captured the recovery set, and restarted the active deployment. The restored copy used separate filesystem paths, private Docker networks, and no published host port.
 
 Two tests exposed assumptions in the automation. Cleanup initially treated Docker’s removal of volatile endpoint fields as an identity mismatch. I changed the check to compare stable configuration and network identities, after which exact cleanup and a zero-change repeat passed. A power interruption exposed a separate boot-order race. Supervised Compose reconciliation restored the service, but automatic recovery from that sequence remained unproven.
 
 Finally, I recreated both containers from the same pinned Homelable version. Their data and networks remained in place, and the login, sanitized test state, and Management-source denial still worked.
 
-```mermaid size=wide caption="What the Homelable test proved"
+```mermaid size=standard caption="What the Homelable test proved"
 flowchart TB
     accTitle: What the Homelable test proved
     accDescr: A pinned integration revision is tested across functional and recovery behavior. Authentication, network boundaries, state persistence, backup, isolated restore, exact cleanup, and pinned recreation pass. One cleanup failure is corrected. A boot-order failure is recovered through supervised reconciliation, while automatic recovery remains open.
@@ -197,7 +193,7 @@ flowchart TB
 
 I had intentionally written the integration scripts for reuse on the production VM. The deployment, backup, restore, and cleanup logic stayed the same; production supplied only its own paths and secrets.
 
-```mermaid size=wide caption="Taking the reviewed revision to production"
+```mermaid size=standard caption="Taking the reviewed revision to production"
 flowchart TB
     accTitle: Taking the reviewed revision to production
     accDescr: Integration evidence for a reviewed revision reaches a human approval gate. Rejection blocks production. Approval opens a protected production lane that independently consumes the same revision and reusable lifecycle scripts with production-specific paths and secrets. Production acceptance either succeeds or leaves the release unaccepted with its evidence preserved. Both non-success states return to correction, review, and testing before another reviewed revision enters the workflow.
