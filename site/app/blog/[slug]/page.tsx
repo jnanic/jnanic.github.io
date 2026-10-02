@@ -44,17 +44,19 @@ export default async function BlogPost(props: Props) {
   const posts = getAllPosts();
   const postIndex = posts.findIndex((candidate) => candidate.slug === post.slug);
   const nextPost = postIndex > 0 ? posts[postIndex - 1] : null;
+  const homelabPartMatch = post.slug.match(/^building-my-homelab-part(\d+)$/);
+  const nextHomelabPart = homelabPartMatch ? Number(homelabPartMatch[1]) + 1 : null;
   const nextDestination = nextPost
     ? {
         href: `/blog/${nextPost.slug}/`,
         title: nextPost.title,
         ariaLabel: `Next post: ${nextPost.title}`,
       }
-    : post.slug === 'building-my-homelab-part6'
+    : postIndex === 0 && nextHomelabPart
       ? {
           href: '/blog/coming-next/',
-          title: 'Part 7 is still booting...',
-          ariaLabel: 'Part 7 status: still booting',
+          title: `Part ${nextHomelabPart} is still booting...`,
+          ariaLabel: `Part ${nextHomelabPart} status: still booting`,
         }
       : null;
 
