@@ -15,6 +15,8 @@ tags:
 - Paperless-ngx
 ---
 
+<img src="/blog/paperless-waiting-for-truenas-part4.png" alt="Three scenes of Pablo Escobar waiting alone. Caption: Paperless waiting for me to unlock the TrueNAS datasets." width="508" style="max-width:100%">
+
 Part 3 ended with a replacement 10 TB drive that had finally passed its extended SMART test.
 
 The disk was healthy, empty, and deliberately unassigned. That only answered whether I *could* use it. Part 4 needed to answer a harder question: what would I trust it to do?
