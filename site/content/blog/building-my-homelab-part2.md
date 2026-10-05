@@ -70,11 +70,17 @@ flowchart TB
     accTitle: Workload separation under Proxmox
     accDescr: Proxmox runs three separated workloads: an OMSCS development virtual machine, a Homepage container, and a Docker Services virtual machine.
 
-    PVE["Proxmox VE"]
+    PVE("Proxmox VE")
+    DEV["VM 100<br/>OMSCS Dev"]
+    HOME["LXC 101<br/>Homepage"]
+    DOCKER["VM 102<br/>Docker Services"]
 
-    PVE --> DEV["VM 100<br/>OMSCS Dev"]
-    PVE --> HOME["LXC 101<br/>Homepage"]
-    PVE --> DOCKER["VM 102<br/>Docker Services"]
+    PVE --> DEV
+    PVE --> HOME
+    PVE --> DOCKER
+
+    class PVE source;
+    class DEV,HOME,DOCKER process;
 ```
 
 The separation costs a little memory, but it makes ownership clear. If Docker breaks, it is a Docker VM problem. If Homepage breaks, it is a small LXC problem. Neither should become a Proxmox-host problem.
@@ -104,16 +110,20 @@ flowchart TD
     accTitle: Tested UPS shutdown sequence
     accDescr: When utility power fails, the UPS switches to battery, Network UPS Tools detects battery operation, guests shut down cleanly, and Proxmox shuts down last.
 
-    POWER["Utility power fails"]
+    POWER{{"Utility power fails"}}
     UPS["UPS switches to battery"]
     NUT["NUT on Proxmox<br/>detects battery operation"]
     GUESTS["Guests shut down cleanly"]
-    PVE["Proxmox shuts down"]
+    PVE(["Proxmox shuts down"])
 
     POWER --> UPS
     UPS --> NUT
     NUT --> GUESTS
     GUESTS --> PVE
+
+    class POWER failure;
+    class UPS,NUT,GUESTS process;
+    class PVE approved;
 ```
 
 I tested it by actually removing utility power. After five minutes on battery, the guests shut down cleanly, followed by Proxmox.
@@ -186,6 +196,8 @@ flowchart LR
     WEBUI["Open WebUI"]
 
     N8N --> RSS --> GRAMPS --> WEBUI
+
+    class N8N,RSS,GRAMPS,WEBUI process;
 ```
 
 n8n went in first, followed by FreshRSS and Gramps Web. Before adding another significant service, I measured the VM again. With those services, shared PostgreSQL, and the Docker monitoring proxy running, the result was:
@@ -226,7 +238,7 @@ flowchart LR
     accTitle: Open WebUI request path
     accDescr: A browser request reaches Open WebUI, which sends it through OpenRouter to the selected language model provider.
 
-    USER["Browser"]
+    USER("Browser")
     WEBUI["Open WebUI"]
     ROUTER["OpenRouter"]
     MODEL["LLM Provider"]
@@ -234,6 +246,9 @@ flowchart LR
     USER --> WEBUI
     WEBUI --> ROUTER
     ROUTER --> MODEL
+
+    class USER source;
+    class WEBUI,ROUTER,MODEL process;
 ```
 
 <img src="/blog/openwebuisuccess.jpg" alt="successful Open WebUI + OpenRouter conversation" width="1920" style="max-width:100%">

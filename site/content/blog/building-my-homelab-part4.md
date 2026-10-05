@@ -40,15 +40,27 @@ flowchart TB
     accTitle: Storage ownership and access boundaries
     accDescr: Proxmox owns NVMe virtual machine storage and runs TrueNAS. TrueNAS exclusively owns the single-disk ZFS pool, serves authenticated SMB to operator devices and restricted NFS to applications, while snapshots remain on the pool and independent backups protect selected data.
 
-    PVE["Proxmox host"] -->|"owns"| NVME["NVMe VM storage"]
-    PVE -->|"runs"| TN["TrueNAS VM"]
-    TN -->|"exclusive filesystem ownership"| ZFS["Single-disk ZFS pool"]
+    PVE("Proxmox host")
+    NVME[["NVMe VM storage"]]
+    TN["TrueNAS VM"]
+    ZFS[["Single-disk ZFS pool"]]
+    OP("Operator devices")
+    APP("Application VM")
+    SNAP[["Snapshots"]]
+    BACKUP[["Cloud or offline copy"]]
+    IMPORTANT[["Selected important data"]]
 
-    OP["Operator devices"] -->|"authenticated SMB"| TN
-    APP["Application VM"] -->|"restricted NFS"| TN
+    PVE -->|"owns"| NVME
+    PVE -->|"runs"| TN
+    TN -->|"exclusive filesystem ownership"| ZFS
+    OP -->|"authenticated SMB"| TN
+    APP -->|"restricted NFS"| TN
+    SNAP -. "same-pool history" .-> ZFS
+    BACKUP -. "independent protection" .-> IMPORTANT
 
-    SNAP["Snapshots"] -. "same-pool history" .-> ZFS
-    BACKUP["Cloud or offline copy"] -. "independent protection" .-> IMPORTANT["Selected important data"]
+    class PVE,OP,APP source;
+    class TN process;
+    class NVME,ZFS,SNAP,BACKUP,IMPORTANT evidence;
 ```
 
 The VM uses four virtual CPUs, a fixed 8 GiB of memory, and a small NVMe-backed boot disk. I considered buying another 32 GiB RAM stick before installing it, but measured the current host under simultaneous load first. The system retained roughly 10 GiB of available memory with no active swapping or memory-pressure stalls, so the upgrade was not justified yet.
@@ -89,19 +101,30 @@ flowchart TB
     accTitle: ZFS dataset policy boundaries
     accDescr: The ZFS pool separates photos, documents, application exports, future media, and migration space. Photo and document datasets further separate operator-managed files from application-managed data and use different unlock policies.
 
-    ROOT["ZFS pool"]
+    ROOT("ZFS pool")
+    PHOTOS["Photos dataset<br/>automatic unlock"]
+    LIBRARY[["Operator-managed library"]]
+    PHOTOAPP[["Application-managed data"]]
+    DOCS["Documents dataset<br/>manual unlock"]
+    FILES[["Operator-managed files"]]
+    PAPERLESS[["Paperless-managed documents"]]
+    EXPORTS["Application exports<br/>automatic unlock and quota"]
+    MEDIA["Future media directories"]
+    MIGRATION["Temporary migration workspace"]
 
-    ROOT --> PHOTOS["Photos dataset<br/>automatic unlock"]
-    PHOTOS --> LIBRARY["Operator-managed library"]
-    PHOTOS --> PHOTOAPP["Application-managed data"]
+    ROOT --> PHOTOS
+    PHOTOS --> LIBRARY
+    PHOTOS --> PHOTOAPP
+    ROOT --> DOCS
+    DOCS --> FILES
+    DOCS --> PAPERLESS
+    ROOT --> EXPORTS
+    ROOT --> MEDIA
+    ROOT --> MIGRATION
 
-    ROOT --> DOCS["Documents dataset<br/>manual unlock"]
-    DOCS --> FILES["Operator-managed files"]
-    DOCS --> PAPERLESS["Paperless-managed documents"]
-
-    ROOT --> EXPORTS["Application exports<br/>automatic unlock and quota"]
-    ROOT --> MEDIA["Future media directories"]
-    ROOT --> MIGRATION["Temporary migration workspace"]
+    class ROOT source;
+    class PHOTOS,DOCS,EXPORTS,MEDIA,MIGRATION process;
+    class LIBRARY,PHOTOAPP,FILES,PAPERLESS evidence;
 ```
 
 The photo library and photo-application data are separate because they have different owners. The operator-managed library is the source of truth and can be exposed read-only to an application. The application's thumbnails, database-adjacent files, and generated data belong in a different writable boundary.
@@ -139,21 +162,32 @@ flowchart TB
     accTitle: Paperless storage-gated startup
     accDescr: After documents are unlocked and Paperless startup is requested, a storage gate checks NFS mounts, service identity, write access, and protected inputs. Passing starts Paperless and Valkey; failure refuses startup.
 
-    UNLOCK["Operator unlocks documents"] --> START["Operator starts Paperless"]
-    START --> GATE["Storage gate"]
+    UNLOCK["Operator unlocks documents"]
+    START["Operator starts Paperless"]
+    GATE["Storage gate"]
+    MOUNTS["Confirm exact NFS mounts"]
+    IDENTITY["Confirm service identity"]
+    ACCESS["Test create and remove access"]
+    CONFIG["Validate protected Compose inputs"]
+    PASS["Evaluate all checks"]
+    COMPOSE(["Start Paperless and Valkey"])
+    REFUSE{{"Refuse startup"}}
 
-    GATE --> MOUNTS["Confirm exact NFS mounts"]
-    GATE --> IDENTITY["Confirm service identity"]
-    GATE --> ACCESS["Test create and remove access"]
-    GATE --> CONFIG["Validate protected Compose inputs"]
-
-    MOUNTS --> PASS{"All checks pass?"}
+    UNLOCK --> START --> GATE
+    GATE --> MOUNTS
+    GATE --> IDENTITY
+    GATE --> ACCESS
+    GATE --> CONFIG
+    MOUNTS --> PASS
     IDENTITY --> PASS
     ACCESS --> PASS
     CONFIG --> PASS
+    PASS -->|"Yes"| COMPOSE
+    PASS -->|"No"| REFUSE
 
-    PASS -->|"Yes"| COMPOSE["Start Paperless and Valkey"]
-    PASS -->|"No"| REFUSE["Refuse startup"]
+    class UNLOCK,START,GATE,MOUNTS,IDENTITY,ACCESS,CONFIG,PASS process;
+    class COMPOSE approved;
+    class REFUSE failure;
 ```
 
 A small, root-controlled systemd unit runs the storage gate before Compose. The gate confirms that the expected paths resolve to the real NFS layers, verifies the service identity and protected configuration metadata, and performs create/remove probes through the same account that Paperless uses.

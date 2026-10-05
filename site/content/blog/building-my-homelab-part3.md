@@ -99,13 +99,13 @@ flowchart LR
     subgraph before["Before the fix"]
         direction TB
 
-        B_BOOT["VM boots"]
+        B_BOOT("VM boots")
         B_NETWORK["Network configuration begins"]
         B_DOCKER["Docker starts too early"]
-        B_ADDRESS["Expected address is unavailable"]
-        B_BINDINGS["Published-port bindings are missing"]
-        B_STATE["Containers appear to be running"]
-        B_RESULT["Applications remain unreachable"]
+        B_ADDRESS{{"Expected address is unavailable"}}
+        B_BINDINGS{{"Published-port bindings are missing"}}
+        B_STATE[["Containers appear to be running"]]
+        B_RESULT{{"Applications remain unreachable"}}
 
         B_BOOT --> B_NETWORK
         B_NETWORK --> B_DOCKER
@@ -118,13 +118,13 @@ flowchart LR
     subgraph after["After the fix"]
         direction TB
 
-        A_BOOT["VM boots"]
+        A_BOOT("VM boots")
         A_NETWORK["Usable network state is established"]
         A_ONLINE["Network-online target completes"]
         A_DOCKER["Docker starts afterward"]
         A_BINDINGS["Published-port bindings are created"]
-        A_STATE["Application checks pass"]
-        A_RESULT["Services return automatically"]
+        A_STATE[["Application checks pass"]]
+        A_RESULT(["Services return automatically"])
 
         A_BOOT --> A_NETWORK
         A_NETWORK --> A_ONLINE
@@ -136,6 +136,12 @@ flowchart LR
 
     B_BOOT ~~~ A_BOOT
     B_RESULT ~~~ A_RESULT
+
+    class B_BOOT,A_BOOT source;
+    class B_NETWORK,B_DOCKER,A_NETWORK,A_ONLINE,A_DOCKER,A_BINDINGS process;
+    class B_ADDRESS,B_BINDINGS,B_RESULT failure;
+    class B_STATE,A_STATE evidence;
+    class A_RESULT approved;
 ```
 
 I strengthened the VM’s network-readiness behavior so Docker waits for usable network state rather than merely for the networking service to begin starting. Then I performed a controlled reboot.
@@ -198,6 +204,9 @@ flowchart TB
     end
 
     repository --> deployment
+
+    class CHANGE,VALIDATE,PULL,BACKUP,RENDER,APPLY,VERIFY process;
+    class MAIN approved;
 ```
 
 The separation is now explicit:
@@ -231,7 +240,7 @@ flowchart TB
     subgraph mac["Mac"]
         direction TB
         OBSIDIAN["Obsidian"]
-        LOCALVAULT["Local research vault"]
+        LOCALVAULT[["Local research vault"]]
         MACSYNC["Syncthing"]
 
         OBSIDIAN --> LOCALVAULT
@@ -243,9 +252,9 @@ flowchart TB
     subgraph linux["Linux research boundary"]
         direction TB
         LINUXSYNC["Syncthing"]
-        SHAREDVAULT["Research vault"]
-        NOTES["Notes and research"]
-        INBOX["Automation Inbox"]
+        SHAREDVAULT[["Research vault"]]
+        NOTES[["Notes and research"]]
+        INBOX[["Automation Inbox"]]
         N8N["n8n"]
 
         LINUXSYNC <--> SHAREDVAULT
@@ -256,6 +265,10 @@ flowchart TB
 
     MACSYNC <--> OVERLAY
     OVERLAY <--> LINUXSYNC
+
+    class OBSIDIAN,MACSYNC,LINUXSYNC,N8N process;
+    class LOCALVAULT,SHAREDVAULT,NOTES,INBOX evidence;
+    class OVERLAY approved;
 ```
 
 The design has a few deliberate boundaries:
