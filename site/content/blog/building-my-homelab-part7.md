@@ -2,7 +2,7 @@
 title: "Building My Proxmox Homelab, Part 7: Keeping Track of the Agents"
 description: "How repository memory, bounded delegation, and human review kept AI-assisted homelab work understandable across sessions."
 publishedDate: "2026-10-02"
-draft: true
+draft: false
 tags:
 - Homelab
 - Proxmox
@@ -10,6 +10,8 @@ tags:
 - AI Agents
 - Documentation
 ---
+
+<img src="/blog/ai-agent-independent-verification-part7.png" alt="Obama awards himself a medal. The recipient is labeled ‘The AI agent that wrote the code’; the presenter is labeled ‘The AI agent reviewing the code’. Caption: ‘Independent verification complete’." width="500" style="max-width:100%">
 
 During the first Homelable deployment, both containers were healthy. The automation still stopped.
 

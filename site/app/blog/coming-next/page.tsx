@@ -30,6 +30,16 @@ const partCopy: Record<number, ComingNextCopy> = {
       { status: 'WAIT', text: 'Moving services after the map stops changing', pending: true },
     ],
   },
+  9: {
+    description: 'The next homelab post is in progress while Daedalus is being prepared for compute work.',
+    lead: 'Part 9 is in progress and will be online when the laptop finishes becoming a compute node.',
+    state: 'Current state: reachable, useful, and not yet a dependency.',
+    steps: [
+      { status: 'OK', text: 'Placed Daedalus on the Compute network', pending: false },
+      { status: 'OK', text: 'Reached Jupyter through an SSH tunnel', pending: false },
+      { status: '....', text: 'Working out what other applications can safely depend on', pending: true },
+    ],
+  },
 };
 
 function getComingNextDetails() {

@@ -26,7 +26,7 @@ flowchart TB
     accTitle: Original host-specific development loop
     accDescr: The loop began with editing on the Mac, pushing to GitHub, fetching on Core, building an isolated candidate, and running checks. Host-specific problems returned the change for revision until it was ready for review and merge.
 
-    EDIT["Edit on Mac"]
+    EDIT("Edit on Mac")
     PUSH["Push branch<br/>to GitHub"]
     FETCH["Fetch branch<br/>on Core"]
     BUILD["Build isolated<br/>candidate"]
@@ -39,9 +39,9 @@ flowchart TB
     RESULT -. "Yes — revise" .-> EDIT
 
     class EDIT source;
-    class PUSH,FETCH,BUILD,TEST control;
+    class PUSH,FETCH,BUILD,TEST process;
     class REVIEW approved;
-    class RESULT decision;
+    class RESULT human;
 ```
 
 The process protected production, but GitHub had become the transport for every unfinished experiment as well as the review boundary for finished work. I wanted a shorter feedback loop.
@@ -68,13 +68,14 @@ flowchart TB
     accDescr: An agent proposes a patch for human approval, an approved patch receives bounded integration testing, evidence returns for human review, and accepted changes move through main and a protected release workflow to production. The agent has no production credentials.
 
     AGENT["Agent investigates<br/>and proposes a change"]
-    PATCH["Reviewable code or patch"]
+    PATCH[["Reviewable code or patch"]]
     HUMAN{"I read and<br/>approve it"}
     TEST["Bounded integration test"]
-    EVIDENCE["Logs, checks, and<br/>observed system state"]
+    EVIDENCE[["Logs, checks, and<br/>observed system state"]]
     MAIN["Reviewed main branch"]
     RELEASE["Protected release workflow"]
-    PROD["Production"]
+    PROD(["Production"])
+    NOACCESS{{"Production access<br/>denied"}}
 
     AGENT --> PATCH --> HUMAN
     HUMAN -. "Needs revision" .-> AGENT
@@ -83,13 +84,13 @@ flowchart TB
     HUMAN -->|"Accepted"| MAIN
     MAIN --> RELEASE --> PROD
 
-    AGENT -. "No production credentials" .-> NOACCESS["Production access<br/>denied"]
+    AGENT -. "No production credentials" .-> NOACCESS
 
-    class AGENT source;
-    class PATCH,TEST,EVIDENCE control;
-    class HUMAN decision;
+    class AGENT,TEST process;
+    class PATCH,EVIDENCE evidence;
+    class HUMAN human;
     class MAIN,RELEASE,PROD approved;
-    class NOACCESS denied;
+    class NOACCESS failure;
 ```
 
 This approach took longer than letting an agent improvise directly on a live host. The extra time forced me to learn Ansible, systemd, Docker networking, SSH trust, Linux permissions, and the failure behavior of my own scripts.
@@ -140,11 +141,11 @@ flowchart TB
     accDescr: Mac development reaches a management controller development workspace and a disposable integration guest, while reviewed GitHub main enters a separate protected release lane with production credentials and access to production hosts.
 %% panel MGMT "Vishwakarma management VM": DEV,RELEASE,DENIED
 
-    MAC["Mac<br/>authoring and review"]
-    GITHUB["GitHub<br/>reviewed main"]
+    MAC("Mac<br/>authoring and review")
+    GITHUB("GitHub<br/>reviewed main")
     DEV["Development workspace<br/>editable branches<br/>integration identity"]
     RELEASE["Protected release lane<br/>production inventory<br/>production identity"]
-    DENIED["Production credentials<br/>unavailable to development"]
+    DENIED{{"Production credentials<br/>unavailable to development"}}
     INTEGRATION["Disposable integration guest<br/>no production secrets or data"]
     PRODUCTION["Production hosts"]
     OUTPUT_ROW(( ))
@@ -160,9 +161,9 @@ flowchart TB
     OUTPUT_ROW ~~~ PRODUCTION
 
     class MAC,GITHUB source;
-    class DEV,INTEGRATION control;
+    class DEV,INTEGRATION process;
     class RELEASE,PRODUCTION approved;
-    class DENIED denied;
+    class DENIED failure;
     class OUTPUT_ROW layout;
 ```
 
@@ -197,14 +198,13 @@ flowchart TB
 
     DISCOVERY["Read-only discovery<br/>Intended facts collected<br/>Target unchanged"]
     CHANGE["Bounded change<br/>Second run: no further changes"]
-    FAILURE["Deliberate failure<br/>Stopped within its boundary<br/>Diagnostic state retained"]
-    CLEANUP["Exact cleanup<br/>Target identity checked<br/>Unrelated guests remain"]
+    FAILURE{{"Deliberate failure<br/>Stopped within its boundary<br/>Diagnostic state retained"}}
+    CLEANUP(["Exact cleanup<br/>Target identity checked<br/>Unrelated guests remain"])
 
     DISCOVERY --> CHANGE --> FAILURE --> CLEANUP
 
-    class DISCOVERY source;
-    class CHANGE control;
-    class FAILURE denied;
+    class DISCOVERY,CHANGE process;
+    class FAILURE failure;
     class CLEANUP approved;
 ```
 
