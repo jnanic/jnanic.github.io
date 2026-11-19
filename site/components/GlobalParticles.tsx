@@ -1,81 +1,50 @@
 'use client';
 
 import { motion, useMotionValue, useSpring } from 'framer-motion';
-import { useEffect, useState, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+
+function createParticles(isCoarse: boolean) {
+  const { innerWidth: width, innerHeight: height } = window;
+  const count = width < 640 ? (isCoarse ? 30 : 45)
+    : width < 1024 ? (isCoarse ? 45 : 65)
+      : (isCoarse ? 60 : 85);
+
+  return Array.from({ length: count }, (_, id) => ({
+    id,
+    x: Math.random() * width,
+    y: Math.random() * height,
+    vx: (Math.random() - 0.5) * 1.6,
+    vy: (Math.random() - 0.5) * 1.6,
+  }));
+}
 
 /**
  * Global particle network - fixed to viewport, doesn't scroll
  */
 export default function GlobalParticles() {
-  const pathname = usePathname();
-  // Disable on blog post pages — moving elements hurt reading focus
-  const isBlogPost = /^\/blog\/.+/.test(pathname ?? '');
-
-  const [particles, setParticles] = useState<Array<{
-    id: number;
-    x: number;
-    y: number;
-    vx: number;
-    vy: number;
-  }>>([]);
-  const [mounted, setMounted] = useState(false);
-  const [enabled, setEnabled] = useState(true);
+  const [isCoarse] = useState(() => window.matchMedia('(pointer: coarse)').matches);
+  const [particles, setParticles] = useState(() => createParticles(isCoarse));
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const smoothMouseX = useSpring(mouseX, { damping: 30, stiffness: 200 });
   const smoothMouseY = useSpring(mouseY, { damping: 30, stiffness: 200 });
-  
-  const rafRef = useRef<number>(undefined);
 
   useEffect(() => {
-    setMounted(true);
-    // Respect prefers-reduced-motion
-    try {
-      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-      setEnabled(!mq.matches);
-      const listener = (e: MediaQueryListEvent) => setEnabled(!e.matches);
-      mq.addEventListener?.('change', listener);
-      return () => mq.removeEventListener?.('change', listener);
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    if (!enabled) return;
-
-    const isCoarse = window.matchMedia('(pointer: coarse)').matches;
-    const getCount = () => {
-      const w = window.innerWidth;
-      if (w < 640) return isCoarse ? 30 : 45; // sm-
-      if (w < 1024) return isCoarse ? 45 : 65; // md-
-      return isCoarse ? 60 : 85; // lg+
-    };
-
-    const initParticles = (count: number) =>
-      Array.from({ length: count }, (_, i) => ({
-        id: i,
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        // Wider velocity range for stronger visual differences
-        vx: (Math.random() - 0.5) * 1.6,
-        vy: (Math.random() - 0.5) * 1.6,
-      }));
-
-    let count = getCount();
-    setParticles(initParticles(count));
-
+    let mouseFrame: number | undefined;
     // Track mouse in viewport coordinates
     const handleMouseMove = (e: MouseEvent) => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
+      if (mouseFrame !== undefined) cancelAnimationFrame(mouseFrame);
+      mouseFrame = requestAnimationFrame(() => {
         mouseX.set(e.clientX);
         mouseY.set(e.clientY);
       });
     };
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
+    let timer: number | undefined;
+    const delay = isCoarse ? 64 : 32;
     // Animate particles within viewport
     const tick = () => {
       setParticles((prev) =>
@@ -128,21 +97,20 @@ export default function GlobalParticles() {
           return { ...p, x: newX, y: newY, vx: newVx, vy: newVy };
         })
       );
-      // Slightly slower on touch devices to reduce CPU/battery
-      const delay = isCoarse ? 64 : 32;
-      rafRef.current = window.setTimeout(tick, delay) as unknown as number;
+      timer = window.setTimeout(tick, delay);
     };
-    tick();
 
     // Pause updates when tab is hidden to save CPU
     const onVisibility = () => {
-      if (document.hidden && rafRef.current) {
-        clearTimeout(rafRef.current);
-      } else if (!document.hidden && !rafRef.current) {
-        tick();
+      if (document.hidden) {
+        window.clearTimeout(timer);
+        timer = undefined;
+      } else if (timer === undefined) {
+        timer = window.setTimeout(tick, delay);
       }
     };
     document.addEventListener('visibilitychange', onVisibility);
+    onVisibility();
 
     // Re-seed on significant viewport resize for a bigger visual reset
     let lastW = window.innerWidth;
@@ -152,23 +120,22 @@ export default function GlobalParticles() {
       const h = window.innerHeight;
       if (Math.abs(w - lastW) / Math.max(1, lastW) > 0.12 || Math.abs(h - lastH) / Math.max(1, lastH) > 0.12) {
         lastW = w; lastH = h;
-        const newCount = getCount();
-        setParticles(initParticles(newCount));
+        setParticles(createParticles(isCoarse));
       }
     };
     window.addEventListener('resize', onResize);
 
     return () => {
-      if (rafRef.current) clearTimeout(rafRef.current);
+      window.clearTimeout(timer);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', onResize);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (mouseFrame !== undefined) cancelAnimationFrame(mouseFrame);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [mouseX, mouseY, enabled]);
+  }, [mouseX, mouseY, isCoarse]);
 
   // Calculate connections
-  const drawConnections = typeof window !== 'undefined' && !window.matchMedia('(pointer: coarse)').matches && window.innerWidth >= 640;
+  const drawConnections = !window.matchMedia('(pointer: coarse)').matches && window.innerWidth >= 640;
   const connections = drawConnections ? particles.flatMap((p1, i) =>
     particles.slice(i + 1).map((p2) => {
       const dx = p2.x - p1.x;
@@ -189,8 +156,6 @@ export default function GlobalParticles() {
     })
   ).filter(Boolean) : [];
   // No section-based crossfade — particles remain constant across sections
-
-  if (!mounted || !enabled || isBlogPost) return null;
 
   const particleLayer = (
     <div 

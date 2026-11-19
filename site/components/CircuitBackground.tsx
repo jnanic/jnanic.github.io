@@ -1,26 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export default function CircuitBackground() {
-  const [mounted, setMounted] = useState(false);
-  const [seed, setSeed] = useState(0);
-
-  useEffect(() => {
-    setSeed(Math.random() * 1000);
-    setMounted(true);
-  }, []);
+  const [seed] = useState(() => Math.random() * 1000);
 
   const random = (min: number, max: number, offset: number = 0) => {
     const x = Math.sin(seed + offset) * 10000;
     return min + ((x - Math.floor(x)) * (max - min));
   };
-
-  // Don't render until mounted to avoid hydration mismatch
-  if (!mounted) {
-    return null;
-  }
 
   const layer = (
     <div

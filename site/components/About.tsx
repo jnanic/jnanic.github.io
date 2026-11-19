@@ -27,7 +27,7 @@ export default function About() {
           {/* Bio */}
           <div className="flex-1 text-center md:text-left">
             <p className="mb-4 text-lg leading-relaxed md:text-xl">
-              Hi! I'm <span className="font-semibold text-primary">Yash Sharma</span>, 
+              Hi! I&apos;m <span className="font-semibold text-primary">Yash Sharma</span>,
               a passionate student and engineer who loves building innovative solutions 
               to real-world problems.
             </p>
@@ -35,7 +35,7 @@ export default function About() {
               I enjoy building projects that connect software with real-world systems, from machine learning experiments and full-stack applications to self-hosted services and homelab infrastructure.
             </p>
             <p className="text-lg leading-relaxed text-muted md:text-xl">
-              I'm currently expanding my knowledge through OMSCS coursework while exploring areas such as virtualization, Linux, networking, MLOps, AI inference and infrastructure.
+              I&apos;m currently expanding my knowledge through OMSCS coursework while exploring areas such as virtualization, Linux, networking, MLOps, AI inference and infrastructure.
             </p>
             
             {/* CV Link */}

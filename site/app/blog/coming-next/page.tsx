@@ -90,7 +90,7 @@ export default function ComingNext() {
         </nav>
 
         <section className="mx-auto max-w-2xl py-8 text-center md:py-14">
-          <p className="mb-5 font-mono text-sm text-brand-zaffre">// next transmission</p>
+          <p className="mb-5 font-mono text-sm text-brand-zaffre">{'// next transmission'}</p>
           <h1 className="mb-6 text-4xl font-bold leading-tight md:text-6xl">
             Part {nextPart} is still booting...
           </h1>

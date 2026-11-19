@@ -1,23 +1,30 @@
  'use client';
 
- import React, { useEffect, useRef, useState } from 'react';
+ import React, { useCallback, useEffect, useRef, useState } from 'react';
  import Link from 'next/link';
  import { usePathname } from 'next/navigation';
  import ThemeToggle from './ThemeToggle';
 
  export default function Navigation() {
    const pathname = usePathname();
-   const showThemeToggle = pathname === '/' || pathname.startsWith('/blog');
+   const isHomepage = pathname === '/';
+   const showThemeToggle = isHomepage || pathname.startsWith('/blog');
    const [isOpen, setIsOpen] = useState(false);
+   const menuButtonRef = useRef<HTMLButtonElement>(null);
    const scrollFrameRef = useRef<number>(undefined);
+
+   const closeMenu = useCallback(() => {
+     setIsOpen(false);
+     menuButtonRef.current?.focus({ preventScroll: true });
+   }, []);
 
    useEffect(() => {
      const onKey = (e: KeyboardEvent) => {
-       if (e.key === 'Escape' && isOpen) setIsOpen(false);
+       if (e.key === 'Escape' && isOpen) closeMenu();
      };
      window.addEventListener('keydown', onKey);
      return () => window.removeEventListener('keydown', onKey);
-   }, [isOpen]);
+   }, [closeMenu, isOpen]);
 
    useEffect(() => {
      document.body.style.overflow = isOpen ? 'hidden' : '';
@@ -39,8 +46,8 @@
    ];
 
    const handleNavClick = (href: string) => {
-     setIsOpen(false);
-     document.body.style.overflow = '';
+     closeMenu();
+     document.body.style.removeProperty('overflow');
 
      if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
      scrollFrameRef.current = requestAnimationFrame(() => {
@@ -61,10 +68,12 @@
          )}
 
          <button
+           ref={menuButtonRef}
            onClick={() => setIsOpen((s) => !s)}
            className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-zaffre text-white shadow-lg transition-all hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-zaffre"
            aria-label={isOpen ? 'Close menu' : 'Open menu'}
            aria-expanded={isOpen}
+           aria-controls="site-navigation"
          >
            <span className="relative block h-5 w-5">
              <span
@@ -91,12 +100,14 @@
          className={`fixed inset-0 z-40 backdrop-blur-sm transition-all duration-300 ${
            isOpen ? 'pointer-events-auto bg-black/30 opacity-100' : 'pointer-events-none opacity-0'
          }`}
-         onClick={() => setIsOpen(false)}
+         onClick={closeMenu}
          aria-hidden="true"
        />
 
        {/* Slide-in panel */}
        <nav
+         id="site-navigation"
+         inert={!isOpen}
          className={`fixed right-0 top-0 z-40 h-full w-64 transition-transform duration-300 ease-in-out ${
            isOpen ? 'translate-x-0' : 'translate-x-full'
          }`}
@@ -113,12 +124,12 @@
              };
              const sharedClass = 'group text-2xl font-medium transition-all hover:text-brand-zaffre focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-zaffre';
 
-             if (isPageLink) {
+             if (isPageLink || !isHomepage) {
                return (
                  <Link
                    key={item.href}
-                   href={item.href}
-                   onClick={() => setIsOpen(false)}
+                   href={isPageLink ? item.href : `/${item.href}`}
+                   onClick={closeMenu}
                    className={sharedClass}
                    style={sharedStyle}
                  >
@@ -133,6 +144,7 @@
                  key={item.href}
                  href={item.href}
                  onClick={(e) => {
+                   if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
                    e.preventDefault();
                    handleNavClick(item.href);
                  }}

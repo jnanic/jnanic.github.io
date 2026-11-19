@@ -35,6 +35,8 @@ Application routes are:
 
 Trailing slashes are intentional and configured in `next.config.mjs` for the static host.
 
+The shared hamburger menu points to homepage sections from every route. On the homepage, section links scroll in place and respect reduced-motion preferences. The closed drawer is inert, and Escape returns focus to the menu button.
+
 ## Homepage
 
 `app/page.tsx` composes the visible sections in this order:
@@ -67,7 +69,7 @@ main
 4. A custom code-block renderer converts Mermaid fences into base64-backed placeholders with semantic size and caption metadata.
 5. Posts are sorted newest first, and production lists omit posts with `draft: true`.
 
-`app/blog/[slug]/page.tsx` obtains every slug through `generateStaticParams`, adds article metadata and JSON-LD, and inserts the generated HTML into the article. Its footer links back to the blog index and, when one exists, to the next chronological published post. The latest visible homelab installment links to the non-indexed `/blog/coming-next/` status page as a fallback; a real chronological post takes precedence automatically. The status page derives its installment number and back link from visible posts, so local draft review advances without making production skip an unpublished installment. `MermaidRendererWithTheme` observes the active theme and uses client-side portals to replace Mermaid placeholders with responsive figures.
+`app/blog/[slug]/page.tsx` obtains every slug through `generateStaticParams`, adds article metadata and JSON-LD, and inserts the generated HTML into the article. Its footer links back to the blog index and, when one exists, to the next chronological published post. The latest visible homelab installment links to the non-indexed `/blog/coming-next/` status page as a fallback; a real chronological post takes precedence automatically. The status page derives its installment number and back link from visible posts, so local draft review advances without making production skip an unpublished installment. `MermaidRendererWithTheme` reads the active theme from `ThemeProvider`. The renderer uses client-side portals to fill Mermaid placeholders with responsive figures.
 
 Mermaid `11.16.1` is pinned for deterministic layout. Figures use `compact`, `standard`, or `wide` maximum-size presets instead of author-supplied pixels. Inline diagrams retain their natural SVG width rather than being enlarged to fill a preset, then scale down responsively when necessary; unusually tall compact diagrams also receive a bounded inline height. The renderer uses theme-aware inline canvases at 50% background opacity, an opaque expanded canvas, and shared light and dark tokens for the semantic roles documented in `README.md`. Renderer-owned management panels are derived from source comments, fitted to the declared top-level rectangular, polygonal, or stadium semantic nodes, included in the SVG view box, and drawn opaquely behind edges and nodes. Panel lookup accounts for Mermaid's diagram-prefixed node IDs; invalid panel membership produces a visible rendering error instead of silently omitting the boundary. This preserves true node-to-node connectors and stable parallel lanes instead of relying on Mermaid's route-clipping and direction-override behavior for compound subgraphs. The renderer preserves Mermaid's SVG accessibility metadata and displays the fence caption in a `figcaption`. Wide, naturally overfull, or height-constrained compact diagrams expose a native-dialog expanded view with contained scrolling; the inline figure remains viewport-clamped so it cannot create page-level horizontal overflow. Authoring syntax and accessibility requirements live in `README.md`.
 
@@ -90,7 +92,7 @@ Blog file access remains in server/build-time modules. Client components must no
 
 ## Theme and styling
 
-`app/globals.css` defines light and dark color variables. `ThemeProvider` synchronizes the `light` or `dark` class on `<html>` with `localStorage`; the inline script in `app/layout.tsx` applies a saved theme before hydration to reduce theme flash.
+`app/globals.css` defines light and dark color variables. The inline script in `app/layout.tsx` applies the saved theme or system preference before hydration. `ThemeProvider` observes the theme class on `<html>` and exposes it to the toggle and Mermaid renderer. The toggle updates the class and saves the choice in `localStorage`.
 
 Tailwind extends the palette with:
 

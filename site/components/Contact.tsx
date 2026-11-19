@@ -1,22 +1,16 @@
-'use client';
-
-import { useState } from 'react';
-
 /**
  * Contact section with minimalist centered design
  */
 export default function Contact() {
-  const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
-
   return (
     <section id="contact" className="relative flex min-h-screen items-center justify-center">
       <div className="relative z-10 mx-auto max-w-2xl text-center">
         <h2 className="mb-8 text-5xl font-bold md:text-6xl lg:text-7xl">
-          Let's talk
+          Let&apos;s talk
         </h2>
         
         <p className="mb-16 text-xl text-muted md:text-2xl">
-          I'm always open to new opportunities and conversations!
+          I&apos;m always open to new opportunities and conversations!
         </p>
 
         {/* Large Icon Links */}

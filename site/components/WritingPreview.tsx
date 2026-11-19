@@ -14,7 +14,7 @@ export default function WritingPreview() {
       <div className="relative z-10 mx-auto max-w-4xl">
         <div className="mb-10 flex items-baseline justify-between gap-4">
           <h2 className="text-4xl font-bold md:text-5xl">
-            <span className="font-light text-brand-zaffre">//</span>{' '}Writing
+            <span className="font-light text-brand-zaffre">{'//'}</span>{' '}Writing
           </h2>
           <Link
             href="/blog/"

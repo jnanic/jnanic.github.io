@@ -1,7 +1,7 @@
 'use client';
 
 import { projects } from '@/data/projects';
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring, type MotionValue } from 'framer-motion';
 import { useRef, useState } from 'react';
 
 /**
@@ -28,23 +28,11 @@ export default function Projects() {
         </motion.h2>
         
         <div className="relative space-y-8">
-          {projects.map((project, index) => {
-            // Alternate left/right layout
-            const isLeft = index % 2 === 0;
-            
-            // Reduced parallax for smoother animation
-            const yOffset = useTransform(
-              scrollYProgress,
-              [0, 1],
-              [index * 20, -index * 20]
-            );
-
-            return (
-              <div key={project.id} className="relative">
-                <ProjectCard project={project} index={index} isLeft={isLeft} yOffset={yOffset} />
-              </div>
-            );
-          })}
+          {projects.map((project, index) => (
+            <div key={project.id} className="relative">
+              <ProjectCard project={project} index={index} scrollYProgress={scrollYProgress} />
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -52,17 +40,17 @@ export default function Projects() {
 }
 
 // Separate card component with 3D tilt effect and glassmorphism
-function ProjectCard({ 
-  project, 
-  index, 
-  isLeft,
-  yOffset 
-}: { 
-  project: typeof projects[0]; 
-  index: number; 
-  isLeft: boolean;
-  yOffset: any;
+function ProjectCard({
+  project,
+  index,
+  scrollYProgress,
+}: {
+  project: typeof projects[0];
+  index: number;
+  scrollYProgress: MotionValue<number>;
 }) {
+  const isLeft = index % 2 === 0;
+  const yOffset = useTransform(scrollYProgress, [0, 1], [index * 20, -index * 20]);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   

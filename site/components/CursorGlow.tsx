@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useMotionValue, useSpring } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 /**
@@ -12,9 +12,6 @@ import { createPortal } from 'react-dom';
  * - low opacity + blur for subtle effect
  */
 export default function CursorGlow() {
-  const [mounted, setMounted] = useState(false);
-  const [enabled, setEnabled] = useState(true);
-
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -22,24 +19,11 @@ export default function CursorGlow() {
   const smoothX = useSpring(mouseX, { damping: 25, stiffness: 300, mass: 0.6 });
   const smoothY = useSpring(mouseY, { damping: 25, stiffness: 300, mass: 0.6 });
 
-  const rafRef = useRef<number>(undefined);
-
   useEffect(() => {
-    setMounted(true);
-
-    // Setup reduced motion listener without early return so we still bind mouse events
-    let mq: MediaQueryList | null = null;
-    let mqListener: ((e: MediaQueryListEvent) => void) | null = null;
-    try {
-      mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-      setEnabled(!mq.matches);
-      mqListener = (e: MediaQueryListEvent) => setEnabled(!e.matches);
-      mq.addEventListener?.('change', mqListener as any);
-    } catch {}
-
+    let mouseFrame: number | undefined;
     const handleMouseMove = (e: MouseEvent) => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
+      if (mouseFrame !== undefined) cancelAnimationFrame(mouseFrame);
+      mouseFrame = requestAnimationFrame(() => {
         mouseX.set(e.clientX);
         mouseY.set(e.clientY);
       });
@@ -48,14 +32,9 @@ export default function CursorGlow() {
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      try {
-        if (mq && mqListener) mq.removeEventListener?.('change', mqListener as any);
-      } catch {}
+      if (mouseFrame !== undefined) cancelAnimationFrame(mouseFrame);
     };
   }, [mouseX, mouseY]);
-
-  if (!mounted || !enabled) return null;
 
   const glow = (
     <div
