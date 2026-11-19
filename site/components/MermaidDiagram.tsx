@@ -625,22 +625,22 @@ export default function MermaidDiagram({ source, theme, size, caption }: Props) 
 
       <dialog
         ref={dialogRef}
-        className="mermaid-dialog"
+        className="blog-media-dialog"
         aria-labelledby={dialogTitleId}
         onClose={handleDialogClose}
       >
-        <div className="mermaid-dialog__header">
+        <div className="blog-media-dialog__header">
           <p id={dialogTitleId}>{caption ?? 'Expanded diagram'}</p>
           <button
             ref={closeButtonRef}
             type="button"
-            className="mermaid-dialog__close"
+            className="blog-media-dialog__close"
             onClick={() => dialogRef.current?.close()}
           >
             Close
           </button>
         </div>
-        <div className="mermaid-dialog__viewport">
+        <div className="blog-media-dialog__viewport">
           {renderedSvg && isExpanded && (
             <div
               className="mermaid-diagram mermaid-diagram--expanded"
