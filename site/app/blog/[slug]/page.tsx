@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAllPosts, getAllPostSlugs, getPostBySlug } from '@/lib/blog';
+import BlogImageDialogs from '@/components/BlogImageDialogs';
 import MermaidRendererWithTheme from '@/components/MermaidRendererWithTheme';
 
 interface Props {
@@ -117,6 +118,7 @@ export default async function BlogPost(props: Props) {
           className="blog-content"
           dangerouslySetInnerHTML={{ __html: post.contentHtml }}
         />
+        {post.contentHtml.includes('data-image-dialog=') && <BlogImageDialogs key={post.slug} />}
         {/* Hydrates data-mermaid placeholders into real diagrams, client-side only */}
         <MermaidRendererWithTheme />
 

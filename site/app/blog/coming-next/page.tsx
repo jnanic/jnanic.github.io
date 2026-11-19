@@ -50,6 +50,16 @@ const partCopy: Record<number, ComingNextCopy> = {
       { status: '....', text: 'Reviewing storage and backup coverage', pending: true },
     ],
   },
+  11: {
+    description: 'The next homelab post is in progress while I retrace a browser request.',
+    lead: 'Part 11 is in progress and will be online when the padlock and the login page show up together.',
+    state: 'The browser did get an answer.',
+    steps: [
+      { status: 'OK', text: 'Reached the staging proxy', pending: false },
+      { status: 'OK', text: 'Checked the browser connection', pending: false },
+      { status: '....', text: 'Following the request to the login page', pending: true },
+    ],
+  },
 };
 
 function getComingNextDetails() {
