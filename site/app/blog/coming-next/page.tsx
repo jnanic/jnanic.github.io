@@ -40,6 +40,16 @@ const partCopy: Record<number, ComingNextCopy> = {
       { status: '....', text: 'Working out what other applications can safely depend on', pending: true },
     ],
   },
+  10: {
+    description: 'The next homelab post is in progress while the maps are being checked.',
+    lead: 'Part 10 is in progress and will be online when I’m done adding “one last arrow.”',
+    state: 'The maps are drawn. I’m checking them against the lab.',
+    steps: [
+      { status: 'OK', text: 'Drew the physical topology', pending: false },
+      { status: 'OK', text: 'Mapped dependencies across VLANs', pending: false },
+      { status: '....', text: 'Reviewing storage and backup coverage', pending: true },
+    ],
+  },
 };
 
 function getComingNextDetails() {
