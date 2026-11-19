@@ -71,7 +71,7 @@ Changing the lid policy let me close the ThinkPad and stay connected over SSH. I
 
 I tried a short run with the fans at manual level 7. Across three runs that each generated 512 tokens at a context depth of 4,096 tokens, I measured a mean of 39.38 tokens/s. The GPU stayed around 50–60°C with no reported software thermal slowdown during that trial, while the CPU still reached 96°C. I returned the fans to automatic afterward.
 
-The thermal runs differed in laptop orientation, duration, and fan setting. The earlier 37.52 tokens/s figure also came from a different generation workload. I’d need a longer test with those conditions controlled before relying on this cooling setup for unattended jobs.
+The thermal runs differed in duration and fan setting, and the effect of laptop orientation is still an open question. The earlier 37.52 tokens/s figure also came from a different generation workload. I’d need a longer test with those conditions controlled before relying on this cooling setup for unattended jobs.
 
 ## Waking Daedalus for a job
 
