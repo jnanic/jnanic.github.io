@@ -2,7 +2,7 @@
 title: "Building My Proxmox Homelab, Part 8: Moving the Network Without Losing the Lab"
 description: "How I moved the homelab behind a UniFi gateway, preserved storage-dependent services, and tested the access boundaries and IPS behavior afterward."
 publishedDate: "2026-10-04"
-draft: true
+draft: false
 tags:
 - Homelab
 - Proxmox
