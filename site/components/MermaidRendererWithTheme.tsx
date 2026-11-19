@@ -1,27 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import MermaidRenderer from '@/components/MermaidRenderer';
+import { useTheme } from './ThemeProvider';
 
-/** Reads the live theme from the <html> class and re-passes it to MermaidRenderer. */
 export default function MermaidRendererWithTheme() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const { theme } = useTheme();
 
-  useEffect(() => {
-    function readTheme(): 'dark' | 'light' {
-      return document.documentElement.classList.contains('light') ? 'light' : 'dark';
-    }
-
-    setTheme(readTheme());
-
-    // Watch for theme class changes on <html>
-    const observer = new MutationObserver(() => setTheme(readTheme()));
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  return <MermaidRenderer theme={theme} />;
+  return theme === null ? null : <MermaidRenderer theme={theme} />;
 }

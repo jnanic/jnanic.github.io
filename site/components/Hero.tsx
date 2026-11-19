@@ -7,7 +7,7 @@ import TypingAnimation from './TypingAnimation';
  */
 export default function Hero() {
   return (
-    <section id="hero" className="relative flex min-h-screen items-center overflow-hidden px-4">
+    <section id="hero" tabIndex={-1} aria-label="Home" className="relative flex min-h-screen items-center overflow-hidden px-4">
       {/* Content */}
       <div className="relative z-10 w-full max-w-6xl pl-8 text-left md:pl-16 lg:pl-24">
         <div className="fade-up">

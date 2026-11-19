@@ -25,7 +25,7 @@ try {
   }
 
   console.log('\nLighthouse checks completed. Reports in lighthouse/reports/{desktop,mobile}');
-} catch (e) {
+} catch {
   console.error('\nLighthouse checks failed (see output above). Reports may still be generated in lighthouse/reports.');
   process.exit(1);
 }

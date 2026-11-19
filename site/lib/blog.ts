@@ -18,8 +18,7 @@ export interface BlogPost {
 
 const postsDir = path.join(process.cwd(), 'content/blog');
 
-const mermaidSizes = ['compact', 'standard', 'wide'] as const;
-type MermaidSize = (typeof mermaidSizes)[number];
+type MermaidSize = 'compact' | 'standard' | 'wide';
 
 function parseMermaidInfo(info: string): { size: MermaidSize; caption?: string } {
   const sizeMatch = info.match(/\bsize=(compact|standard|wide)\b/i);

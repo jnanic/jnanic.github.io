@@ -33,7 +33,7 @@ export default function BlogIndex() {
     <main className="relative z-10 min-h-screen px-4 py-24 md:py-32">
       <div className="mx-auto max-w-3xl">
         <h1 className="mb-4 text-4xl font-bold md:text-5xl">
-          <span className="font-light text-brand-zaffre">//</span>{' '}Blog
+          <span className="font-light text-brand-zaffre">{'//'}</span>{' '}Blog
         </h1>
         <p className="mb-16 text-xl leading-relaxed text-muted">
           Writings on{' '}

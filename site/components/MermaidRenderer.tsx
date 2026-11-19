@@ -24,38 +24,25 @@ export default function MermaidRenderer({ theme }: Props) {
   const [diagrams, setDiagrams] = useState<DiagramEntry[]>([]);
 
   useEffect(() => {
-    const placeholders = Array.from(document.querySelectorAll('[data-mermaid]'));
-    if (placeholders.length === 0) return;
-
     const decode = (encoded: string): string => {
       const bytes = Uint8Array.from(atob(encoded), (character) => character.charCodeAt(0));
       return new TextDecoder().decode(bytes);
     };
 
-    const entries: DiagramEntry[] = placeholders.map((el) => {
-      const encoded = el.getAttribute('data-mermaid') ?? '';
-      const source = decode(encoded);
-      const rawSize = el.getAttribute('data-mermaid-size');
-      const size: MermaidSize = rawSize === 'compact' || rawSize === 'wide'
-        ? rawSize
-        : 'standard';
-      const encodedCaption = el.getAttribute('data-mermaid-caption');
-      const caption = encodedCaption ? decode(encodedCaption) : undefined;
-      // Clear the placeholder content so the portal has a clean mount point
-      el.innerHTML = '';
-      return { el, source, size, caption };
+    // Discover the article placeholders once the browser can lay them out.
+    const frame = requestAnimationFrame(() => {
+      const entries = Array.from(document.querySelectorAll('[data-mermaid]'), (el): DiagramEntry => {
+        const source = decode(el.getAttribute('data-mermaid') ?? '');
+        const rawSize = el.getAttribute('data-mermaid-size');
+        const size = rawSize === 'compact' || rawSize === 'wide' ? rawSize : 'standard';
+        const encodedCaption = el.getAttribute('data-mermaid-caption');
+        const caption = encodedCaption ? decode(encodedCaption) : undefined;
+        return { el, source, size, caption };
+      });
+      if (entries.length) setDiagrams(entries);
     });
-
-    setDiagrams(entries);
+    return () => cancelAnimationFrame(frame);
   }, []);
-
-  // Re-run when theme changes so each diagram re-renders with the correct theme
-  useEffect(() => {
-    if (diagrams.length === 0) return;
-    // Trigger a re-render by refreshing the diagrams array reference
-    setDiagrams((prev) => [...prev]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme]);
 
   return (
     <>

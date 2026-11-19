@@ -56,10 +56,14 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
+              let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
               try {
-                const theme = localStorage.getItem('theme') || 'dark';
-                document.documentElement.classList.add(theme);
-              } catch (e) {}
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'light' || savedTheme === 'dark') theme = savedTheme;
+                else localStorage.setItem('theme', theme);
+              } catch {}
+              document.documentElement.classList.toggle('light', theme === 'light');
+              document.documentElement.classList.toggle('dark', theme === 'dark');
             `,
           }}
         />

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useTheme } from './ThemeProvider';
 
 /**
@@ -8,25 +7,13 @@ import { useTheme } from './ThemeProvider';
  * Displays sun icon for light mode, moon icon for dark mode
  */
 export default function ThemeToggle() {
-  const [mounted, setMounted] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
-  // Prevent hydration mismatch by only rendering after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Don't render anything until mounted to avoid SSR issues
-  if (!mounted) {
+  if (theme === null) {
     return (
       <div className="h-12 w-12 animate-pulse rounded-full bg-brand-zaffre/10" />
     );
   }
-
-  return <ThemeToggleButton />;
-}
-
-function ThemeToggleButton() {
-  const { theme, toggleTheme } = useTheme();
 
   return (
     <button

@@ -1,54 +1,44 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useSyncExternalStore } from 'react';
 
 type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
-  theme: Theme;
+  theme: Theme | null;
   toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark');
-  const [mounted, setMounted] = useState(false);
+function subscribeToTheme(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  return () => observer.disconnect();
+}
 
-  // Load theme from localStorage on mount
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else if (prefersDark) {
-      setTheme('dark');
-    } else {
-      setTheme('light');
-    }
-    
-    setMounted(true);
-  }, []);
+function getTheme(): Theme {
+  return document.documentElement.classList.contains('light') ? 'light' : 'dark';
+}
 
-  // Apply theme to document
-  useEffect(() => {
-    if (!mounted) return;
-    
-    const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme);
+function getServerTheme() {
+  return null;
+}
+
+function toggleTheme() {
+  const theme = getTheme() === 'light' ? 'dark' : 'light';
+  const { classList } = document.documentElement;
+  classList.toggle('light', theme === 'light');
+  classList.toggle('dark', theme === 'dark');
+  try {
     localStorage.setItem('theme', theme);
-  }, [theme, mounted]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
-
-  // Prevent flash of wrong theme
-  if (!mounted) {
-    return <>{children}</>;
+  } catch {
+    // The toggle still works for this page when storage is unavailable.
   }
+}
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const theme = useSyncExternalStore(subscribeToTheme, getTheme, getServerTheme);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
