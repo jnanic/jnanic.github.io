@@ -10,7 +10,7 @@ export default function Home() {
     <main className="min-h-screen relative z-10">
       <Hero />
       <About />
-      <section id="projects" className="relative py-8 md:py-12">
+      <section id="projects" tabIndex={-1} aria-label="Projects" className="relative py-8 md:py-12">
         <LazyProjects />
       </section>
       <WritingPreview />

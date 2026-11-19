@@ -3,7 +3,7 @@
  */
 export default function Contact() {
   return (
-    <section id="contact" className="relative flex min-h-screen items-center justify-center">
+    <section id="contact" tabIndex={-1} aria-label="Contact" className="relative flex min-h-screen items-center justify-center">
       <div className="relative z-10 mx-auto max-w-2xl text-center">
         <h2 className="mb-8 text-5xl font-bold md:text-6xl lg:text-7xl">
           Let&apos;s talk

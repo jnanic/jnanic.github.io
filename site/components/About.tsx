@@ -6,7 +6,7 @@ import Image from 'next/image';
  */
 export default function About() {
   return (
-    <section id="about" className="relative px-4 py-12 md:py-16">
+    <section id="about" tabIndex={-1} aria-label="About" className="relative px-4 py-12 md:py-16">
       <div className="relative z-10 mx-auto max-w-4xl">
         <h2 className="mb-12 text-left text-4xl font-bold md:text-5xl">About</h2>
         

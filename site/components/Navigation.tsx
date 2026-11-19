@@ -13,18 +13,18 @@
    const menuButtonRef = useRef<HTMLButtonElement>(null);
    const scrollFrameRef = useRef<number>(undefined);
 
-   const closeMenu = useCallback(() => {
+   const dismissMenu = useCallback(() => {
      setIsOpen(false);
      menuButtonRef.current?.focus({ preventScroll: true });
    }, []);
 
    useEffect(() => {
      const onKey = (e: KeyboardEvent) => {
-       if (e.key === 'Escape' && isOpen) closeMenu();
+       if (e.key === 'Escape' && isOpen) dismissMenu();
      };
      window.addEventListener('keydown', onKey);
      return () => window.removeEventListener('keydown', onKey);
-   }, [closeMenu, isOpen]);
+   }, [dismissMenu, isOpen]);
 
    useEffect(() => {
      document.body.style.overflow = isOpen ? 'hidden' : '';
@@ -46,14 +46,17 @@
    ];
 
    const handleNavClick = (href: string) => {
-     closeMenu();
+     setIsOpen(false);
      document.body.style.removeProperty('overflow');
+
+     const section = document.getElementById(href.slice(1));
+     if (!section) return;
+     section.focus({ preventScroll: true });
 
      if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
      scrollFrameRef.current = requestAnimationFrame(() => {
-       const el = document.querySelector(href);
        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-       if (el) el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+       section.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
      });
    };
 
@@ -100,7 +103,7 @@
          className={`fixed inset-0 z-40 backdrop-blur-sm transition-all duration-300 ${
            isOpen ? 'pointer-events-auto bg-black/30 opacity-100' : 'pointer-events-none opacity-0'
          }`}
-         onClick={closeMenu}
+         onClick={dismissMenu}
          aria-hidden="true"
        />
 
@@ -129,7 +132,7 @@
                  <Link
                    key={item.href}
                    href={isPageLink ? item.href : `/${item.href}`}
-                   onClick={closeMenu}
+                   onClick={() => setIsOpen(false)}
                    className={sharedClass}
                    style={sharedStyle}
                  >

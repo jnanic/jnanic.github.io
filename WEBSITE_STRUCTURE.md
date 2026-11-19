@@ -35,7 +35,7 @@ Application routes are:
 
 Trailing slashes are intentional and configured in `next.config.mjs` for the static host.
 
-The shared hamburger menu points to homepage sections from every route. On the homepage, section links scroll in place and respect reduced-motion preferences. The closed drawer is inert, and Escape returns focus to the menu button.
+The shared hamburger menu points to homepage sections from every route. On the homepage, selecting a section moves focus there and scrolls in place with reduced-motion support. The closed drawer is inert, and Escape returns focus to the menu button.
 
 ## Homepage
 
