@@ -23,7 +23,7 @@ Proxmox already served HTTPS with a certificate issued by its own cluster. I wan
 
 [Caddy](https://github.com/caddyserver/caddy) fit what I needed from a reverse proxy. The standard build could load a certificate from disk, verify Proxmox’s certificate against the cluster CA, and proxy the WebSocket for the VM console. I could leave certificate renewal to a separate process.
 
-I reviewed the Caddy design and ran isolated tests in the [Ubuntu development VM on my Mac](/blog/building-my-homelab-part11/). I set aside a separate [Debian](https://www.debian.org/) VM on Proxmox to run the proxy. I used the [DNS service built into my UniFi gateway](https://help.ui.com/hc/en-us/articles/15179064940439-UniFi-DNS-Records-and-Local-Hostnames) to point the private name at that VM. The gateway handled local DNS without a separate server. I can add a dedicated DNS server later if I need one. The VM is the staging proxy in [Part 10’s topology map](/blog/building-my-homelab-part10/).
+I reviewed the Caddy design and ran isolated tests in the [Ubuntu development VM on my Mac](/blog/building-my-homelab-part11/). I set aside a separate Debian VM on Proxmox to run the proxy. I used the DNS service built into my UniFi gateway to point the private name at that VM. The gateway handled local DNS without a separate server. I can add a dedicated DNS server later if I need one. The VM is the staging proxy in [Part 10’s topology map](/blog/building-my-homelab-part10/).
 
 I started with Proxmox. The browser would verify Caddy’s certificate, then Caddy would make its own HTTPS connection and verify Proxmox’s certificate against the lab’s certificate authority.
 
@@ -222,4 +222,12 @@ flowchart TB
     class V,OK evidence;
 ```
 
+## Where Part 12 ends
+
+I could sign in from my Mac at the private Proxmox name and keep a VM console open through Caddy. I’d tested the direct route into Proxmox with Caddy stopped, and I’d restored the staging backup in an isolated VM.
+
 By November 18, Lego had obtained a production certificate and I’d verified it on disk. I opened a fresh connection to check what Caddy served. My browser still received the staging certificate. I recorded that result and left the switch for the next deployment.
+
+## Coming next
+
+Before the next deployment, I wanted to know which Git commit the bundle came from and whether the files that arrived on the proxy VM matched it. In Part 13 I’ll follow one reviewed change through the release process and show where the version number, changelog, and GitHub Releases fit.
