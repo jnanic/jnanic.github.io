@@ -185,6 +185,11 @@
 /* Images */
 .blog-content img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 1.5rem auto; display: block; }
 
+.blog-illustration { margin: 1.5rem 0; text-align: center; }
+.blog-illustration img { margin: 0 auto; }
+.light .blog-illustration picture[data-theme="dark"],
+.dark .blog-illustration picture[data-theme="light"] { display: none; }
+
 .blog-image-figure {
   position: relative;
   left: 50%;
@@ -232,7 +237,8 @@
   overscroll-behavior: contain;
 }
 
-.mermaid-figure--semantic .mermaid-viewport {
+.mermaid-figure--semantic .mermaid-viewport,
+.mermaid-viewport:has(.mermaid-diagram > svg[aria-roledescription="sequence"]) {
   border-radius: 0.75rem;
   background: color-mix(in srgb, var(--mermaid-canvas) 50%, transparent);
 }
@@ -480,6 +486,7 @@
 }
 
 .mermaid-figure figcaption,
+.blog-illustration figcaption,
 .blog-image-figure figcaption {
   margin-top: 0.75rem;
   color: var(--color-muted);
