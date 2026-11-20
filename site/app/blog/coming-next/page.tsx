@@ -71,12 +71,12 @@ const partCopy: Record<number, ComingNextCopy> = {
     ],
   },
   13: {
-    description: 'The next homelab post follows tested changes into a versioned release.',
-    lead: 'Part 13 is in progress and will be online when the changelog stops changing.',
-    state: 'The commit has a version. The draft is still moving.',
+    description: 'The next homelab post is in progress while I check what goes into a release.',
+    lead: 'Part 13 is in progress and will be online when “latest” has a version number.',
+    state: 'The version check is in place. The draft is still moving.',
     steps: [
-      { status: 'OK', text: 'Picked a change to follow into a release', pending: false },
-      { status: '....', text: 'Checking what goes into the release and what gets left behind', pending: true },
+      { status: 'OK', text: 'Found the changelog entry for this version', pending: false },
+      { status: '....', text: 'Checking which files belong in the release', pending: true },
     ],
   },
 };

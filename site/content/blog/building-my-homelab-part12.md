@@ -142,7 +142,7 @@ flowchart TB
 
 I checked the upstream name and chain from the proxy VM during setup. In an isolated test, I gave Caddy the wrong server name and then the wrong certificate authority. It rejected the upstream both times.
 
-**5. The login page comes back.** Caddy relays the response over the first HTTPS connection. In staging, my browser got HTTP 200 and displayed the sign-in page.
+**5. The login page comes back.** Caddy relays the response over the first HTTPS connection. A command-line HTTPS check from my Mac returned HTTP 200. I then opened the sign-in page in a temporary browser profile that trusted the staging certificate authority.
 
 ## Following the sign-in and the console
 
@@ -226,7 +226,7 @@ flowchart TB
 
 I could sign in from my Mac at the private Proxmox name and keep a VM console open through Caddy. I’d tested the direct route into Proxmox with Caddy stopped, and I’d restored the staging backup in an isolated VM.
 
-By November 18, Lego had obtained a production certificate and I’d verified it on disk. I opened a fresh connection to check what Caddy served. My browser still received the staging certificate. I recorded that result and left the switch for the next deployment.
+By November 18, Lego had obtained a production certificate and I’d verified it on disk. A fresh TLS connection from the proxy VM showed that Caddy still served the staging certificate. I left the switch for the next deployment.
 
 ## Coming next
 
