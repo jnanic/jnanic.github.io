@@ -51,13 +51,32 @@ const partCopy: Record<number, ComingNextCopy> = {
     ],
   },
   11: {
+    description: 'The next homelab post follows a development workspace moving to a Linux VM.',
+    lead: 'Part 11 is in progress and will be online when the new VM has finished unpacking.',
+    state: 'The files made it over. I’m checking that I can pick up where I left off.',
+    steps: [
+      { status: 'OK', text: 'Moved the working notes and conversations', pending: false },
+      { status: 'OK', text: 'Checked the unfinished Git work', pending: false },
+      { status: '....', text: 'Following the first change through review on the VM', pending: true },
+    ],
+  },
+  12: {
     description: 'The next homelab post is in progress while I retrace a browser request.',
-    lead: 'Part 11 is in progress and will be online when the padlock and the login page show up together.',
+    lead: 'Part 12 is in progress and will be online when the padlock and the login page show up together.',
     state: 'The browser did get an answer.',
     steps: [
       { status: 'OK', text: 'Reached the staging proxy', pending: false },
       { status: 'OK', text: 'Checked the browser connection', pending: false },
       { status: '....', text: 'Following the request to the login page', pending: true },
+    ],
+  },
+  13: {
+    description: 'The next homelab post follows tested changes into a versioned release.',
+    lead: 'Part 13 is in progress and will be online when the changelog stops changing.',
+    state: 'The commit has a version. The draft is still moving.',
+    steps: [
+      { status: 'OK', text: 'Picked a change to follow into a release', pending: false },
+      { status: '....', text: 'Checking what goes into the release and what gets left behind', pending: true },
     ],
   },
 };

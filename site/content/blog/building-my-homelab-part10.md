@@ -142,3 +142,5 @@ A full Paperless recovery would also need to open a document from the recovered 
 Adding the staging proxy in November gave me a reason to open all three canvases. I added the guest under Proxmox, put its service in the right VLAN, and recorded where its recovery material lived. I saved and reopened the views to check that the edits stuck.
 
 I update the maps after a change goes live, when I can check where something runs and what it actually uses. The private map also links to the runbooks. I revisit those links when a runbook moves or the underlying setup changes. When I swap a cable, move a guest, or change a mount, I can update the view that explains the change.
+
+The maps now show where the proxy runs and where I keep its recovery material. When I was still designing it, the proposal, the review comments, and several unfinished edits lived on my Mac. In Part 11 I’ll show how I moved that work into a Linux VM and checked that I could pick up the same review there.
