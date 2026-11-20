@@ -12,9 +12,13 @@ tags:
 - Code Review
 ---
 
+<img src="/blog/hotel-arcadia-part11.jpg" alt="A sign reads “Welcome to Hotel Arcadia. Your private Ubuntu VM is ready. Go ahead and run the script. Management’s family photos are back on the Mac.”" width="500" height="625">
+
+Arcadia is the Ubuntu ARM64 VM I set up on my Mac with [VirtualBuddy](https://github.com/insidegui/VirtualBuddy). It gives the agent its own Linux filesystem for review and tests.
+
 I was reviewing the Caddy proposal on my Mac when I started thinking about where the agent would run its tests. The proposal was for the staging proxy from [Part 10’s maps](/blog/building-my-homelab-part10/). I wanted to be able to say “go ahead and run the test” without having to think through which of my personal files the script could reach.
 
-I still wanted to work from the same laptop, so I used [VirtualBuddy](https://github.com/insidegui/VirtualBuddy) to run an Ubuntu ARM64 VM on my Mac. The agent would have a Linux filesystem of its own for the review and tests. Caddy would run on a separate Debian VM in the lab. With Ubuntu running, I needed to bring over the half-finished proposal and all the work around it.
+Caddy would run on a separate Debian VM in the lab. Once Arcadia was running, I needed to bring over the half-finished proposal and all the work around it.
 
 ```mermaid size=standard caption="Once Caddy was running in the lab, I could close the Ubuntu VM and still use the dashboard from my Mac."
 flowchart TB
